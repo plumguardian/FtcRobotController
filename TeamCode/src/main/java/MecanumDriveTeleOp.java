@@ -17,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
  *
  */
 @TeleOp(name = "Mecanum Drive", group = "Robot")
-public class MecanumDrive extends OpMode {
+public class MecanumDriveTeleOp extends OpMode {
     // This declares the four motors needed
     DcMotor frontLeftDrive;
     DcMotor frontRightDrive;
@@ -90,7 +90,7 @@ public class MecanumDrive extends OpMode {
         theta = AngleUnit.normalizeRadians(theta -
                 imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
 
-        /*
+        /* Reports orientation
         telemetry.addLine("yaw: " + imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
         telemetry.addLine("roll: " + imu.getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES));
         telemetry.addLine("pitch: " + imu.getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES));
