@@ -17,13 +17,21 @@ public class AprilTagTest extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        visionPortal.resumeStreaming(); // Not necessary???? idk
+        while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            telemetry.addData("Camera State", visionPortal.getCameraState());
+            telemetry.update();
+            sleep(50);
+        }
 
         while (opModeIsActive()) {
             for (AprilTagDetection detection : aprilTagProcessor.getDetections()) {
-                telemetry.addLine("Detected tag ID: " + detection.id);
+                if (detection.metadata != null)
+                    telemetry.addLine("id: " + detection.id + " | name: " + detection.metadata.name);
+                else
+                    telemetry.addLine("id: " + detection.id);
             }
             telemetry.update();
+            sleep(1000);
         }
 
         visionPortal.stopStreaming();
