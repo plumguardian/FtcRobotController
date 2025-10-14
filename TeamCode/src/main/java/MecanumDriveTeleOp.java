@@ -5,18 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-/*
- * This OpMode illustrates how to program your robot to drive field relative.  This means
- * that the robot drives the direction you push the joystick regardless of the current orientation
- * of the robot.
- *
- * This OpMode assumes that you have four mecanum wheels each on its own motor named:
- *   front_left_motor, front_right_motor, back_left_motor, back_right_motor
- *
- *   and that the left motors are flipped such that when they turn clockwise the wheel moves backwards
- *
- */
-@TeleOp(name = "Mecanum Drive", group = "Robot")
+
+@TeleOp(name = "Mecanum Drive", group = "Club")
 public class MecanumDriveTeleOp extends OpMode {
     // This declares the four motors needed
     DcMotor frontLeftDrive;
