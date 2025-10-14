@@ -1,6 +1,7 @@
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -11,6 +12,7 @@ public class AprilTagTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         AprilTagProcessor aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
+        // BuiltinCameraDirection.BACK can be used as a camera if it exists
         VisionPortal visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
 
         waitForStart();
@@ -34,6 +36,6 @@ public class AprilTagTest extends LinearOpMode {
             sleep(1000);
         }
 
-        visionPortal.stopStreaming();
+        visionPortal.close();
     }
 }
