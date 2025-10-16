@@ -1,12 +1,12 @@
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+@SuppressWarnings("BusyWait")
 @Autonomous(name = "April Tag Test", group = "Club")
 public class AprilTagTest extends LinearOpMode {
     @Override
@@ -22,7 +22,7 @@ public class AprilTagTest extends LinearOpMode {
         while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
             telemetry.addData("Camera State", visionPortal.getCameraState());
             telemetry.update();
-            sleep(50);
+            Thread.sleep(50);
         }
 
         while (opModeIsActive()) {
@@ -33,7 +33,7 @@ public class AprilTagTest extends LinearOpMode {
                     telemetry.addLine("id: " + detection.id);
             }
             telemetry.update();
-            sleep(1000);
+            Thread.sleep(1000);
         }
 
         visionPortal.close();
