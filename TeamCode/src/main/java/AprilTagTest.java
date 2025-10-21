@@ -1,10 +1,13 @@
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
+import java.util.ArrayList;
 
 @SuppressWarnings("BusyWait")
 @Autonomous(name = "April Tag Test", group = "Club")
@@ -25,13 +28,20 @@ public class AprilTagTest extends LinearOpMode {
             Thread.sleep(50);
         }
 
+        telemetry.addLine("Starting...");
+        telemetry.update();
+
         while (opModeIsActive()) {
-            for (AprilTagDetection detection : aprilTagProcessor.getDetections()) {
-                if (detection.metadata != null)
-                    telemetry.addLine("id: " + detection.id + " | name: " + detection.metadata.name);
-                else
-                    telemetry.addLine("id: " + detection.id);
-            }
+            ArrayList<AprilTagDetection> detections = aprilTagProcessor.getDetections();
+            if (detections.isEmpty())
+                telemetry.addLine("No tags found");
+            else
+                for (AprilTagDetection detection : detections) {
+                    Telemetry.Item item = telemetry.addData("id", detection.id);
+                    if (detection.metadata != null)
+                                item.addData("name", detection.metadata.name);
+                }
+
             telemetry.update();
             Thread.sleep(1000);
         }
