@@ -2,7 +2,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@TeleOp(name = "Launch Mechanism", group = "Club")
+@TeleOp(name = "Launch Mechanism", group = "Robotics Team")
 public class LaunchMechanism extends OpMode {
     DcMotor launchLeft;
     DcMotor launchRight;
