@@ -9,7 +9,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("BusyWait")
 @Autonomous(name = "April Tag Test", group = TeamCode.GROUP_NAME)
@@ -19,7 +19,7 @@ public class AprilTagTest extends LinearOpMode {
         AprilTagProcessor aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
         // BuiltinCameraDirection.BACK can be used as a camera if it exists
         VisionPortal visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
-        // TODO: is camera calibration being applied? maybe check vid and pid.
+        // TODO: is camera calibration (teamwebcamcalibrations.xml) being applied? maybe check vid and pid.
 
         waitForStart();
 
@@ -35,7 +35,7 @@ public class AprilTagTest extends LinearOpMode {
         telemetry.update();
 
         while (opModeIsActive()) {
-            ArrayList<AprilTagDetection> detections = aprilTagProcessor.getDetections();
+            List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
             if (detections.isEmpty())
                 telemetry.addLine("No tags found");
             else

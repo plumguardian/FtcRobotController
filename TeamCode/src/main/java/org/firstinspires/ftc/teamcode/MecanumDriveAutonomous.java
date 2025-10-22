@@ -1,0 +1,133 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
+import com.pedropathing.ftc.FTCCoordinates;
+import com.pedropathing.ftc.FollowerBuilder;
+import com.pedropathing.ftc.drivetrains.MecanumConstants;
+import com.pedropathing.ftc.localization.Encoder;
+import com.pedropathing.ftc.localization.constants.DriveEncoderConstants;
+import com.pedropathing.geometry.BezierLine;
+import com.pedropathing.geometry.PedroCoordinates;
+import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Vector;
+import com.pedropathing.paths.PathChain;
+import com.pedropathing.paths.PathConstraints;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
+import java.util.List;
+
+@SuppressWarnings("BusyWait")
+@Autonomous(name = "Mecanum Drive", group = TeamCode.GROUP_NAME)
+public class MecanumDriveAutonomous extends LinearOpMode {
+    @Override
+    public void runOpMode() throws InterruptedException {
+        AprilTagProcessor aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
+        // BuiltinCameraDirection.BACK can be used as a camera if it exists
+        VisionPortal visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
+        // TODO: is camera calibration (teamwebcamcalibrations.xml) being applied? maybe check vid and pid.
+
+        FollowerConstants followerConstants = new FollowerConstants()
+                .mass(0.0) // TODO: find
+                .forwardZeroPowerAcceleration(0.0) // TODO: find
+                .lateralZeroPowerAcceleration(0.0) // TODO: find
+                .centripetalScaling(0.0) // TODO: find
+                .drivePIDFCoefficients(null) // TODO: find
+                .drivePIDFSwitch(0.0) // TODO: find
+                .headingPIDFCoefficients(null) // TODO: find
+                .headingPIDFSwitch(0.0) // TODO: find
+                .secondaryDrivePIDFCoefficients(null) // TODO: find
+                .secondaryHeadingPIDFCoefficients(null) // TODO: find
+                .secondaryTranslationalPIDFCoefficients(null) // TODO: find
+                .useSecondaryDrivePIDF(true) // TODO: find
+                .useSecondaryHeadingPIDF(true) // TODO: find
+                .useSecondaryTranslationalPIDF(true) // TODO: find
+                .holdPointHeadingScaling(0.0) // TODO: find
+                .holdPointTranslationalScaling(0.0) // TODO: find
+                .turnHeadingErrorThreshold(0.0) // TODO: find
+                .automaticHoldEnd(true) // TODO: find
+                .translationalIntegral(0.0) // TODO: find
+                .translationalPIDFSwitch(0.0) // TODO: find
+                .translationalPIDFCoefficients(null) // TODO: find
+                .BEZIER_CURVE_SEARCH_LIMIT(0); // TODO: find
+        MecanumConstants mecanumConstants = new MecanumConstants()
+                .maxPower(1)
+                .leftFrontMotorName("fld")
+                .leftFrontMotorDirection(DcMotor.Direction.REVERSE)
+                .leftRearMotorName("bld")
+                .leftRearMotorDirection(DcMotor.Direction.REVERSE)
+                .rightFrontMotorName("frd")
+                .rightFrontMotorDirection(DcMotor.Direction.FORWARD)
+                .rightRearMotorName("brd")
+                .rightRearMotorDirection(DcMotor.Direction.FORWARD)
+                .xVelocity(0.0) // TODO: find
+                .yVelocity(0.0) // TODO: find
+                .motorCachingThreshold(0.0) // TODO: find
+                .staticFrictionCoefficient(0.0) // TODO: find
+                .nominalVoltage(0.0) // TODO: find
+                .useBrakeModeInTeleOp(true) // TODO: find
+                .useVoltageCompensation(true); // TODO: find
+        mecanumConstants.setFrontLeftVector(new Vector()); // TODO: find
+        PathConstraints pathConstraints = new PathConstraints(0.995, 100);
+        DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants() // TODO: if we have odometry pods, use that plus IMU
+                .leftFrontMotorName("fld")
+                .leftFrontEncoderDirection(Encoder.FORWARD) // FIXME: test this and make sure that all ticks go up when going forward. If not, make it reverse
+                .leftRearMotorName("bld")
+                .leftRearEncoderDirection(Encoder.FORWARD) // FIXME: test this and make sure that all ticks go up when going forward. If not, make it reverse
+                .rightFrontMotorName("frd")
+                .rightFrontEncoderDirection(Encoder.FORWARD) // FIXME: test this and make sure that all ticks go up when going forward. If not, make it reverse
+                .rightRearMotorName("brd")
+                .rightRearEncoderDirection(Encoder.FORWARD) // FIXME: test this and make sure that all ticks go up when going forward. If not, make it reverse
+                .forwardTicksToInches(0.0) // TODO: find
+                .strafeTicksToInches(0.0) // TODO: find
+                .turnTicksToInches(0.0) // TODO: find
+                .robotLength(0.0) // TODO: find
+                .robotWidth(0.0); // TODO: find
+        Follower follower = new FollowerBuilder(followerConstants, hardwareMap)
+                .mecanumDrivetrain(mecanumConstants)
+                .pathConstraints(pathConstraints)
+                .driveEncoderLocalizer(driveEncoderConstants)
+                .build();
+        follower.setStartingPose(new Pose());
+
+        waitForStart();
+
+        if (isStopRequested()) return;
+
+        while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            telemetry.addData("Camera State", visionPortal.getCameraState());
+            telemetry.update();
+            Thread.sleep(50);
+        }
+
+        telemetry.addLine("Starting...");
+        telemetry.update();
+
+        while (opModeIsActive()) {
+            List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
+            if (!detections.isEmpty()) {
+                AprilTagDetection detection = detections.get(0); // ignore all
+                Pose endPose = new Pose(detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.bearing, FTCCoordinates.INSTANCE).getAsCoordinateSystem(PedroCoordinates.INSTANCE); // FIXME: may be wrong system
+                follower.update();
+                PathChain path = follower.pathBuilder()
+                        .addPath(new BezierLine(follower.getPose(), endPose))
+                         .setLinearHeadingInterpolation(follower.getHeading(), endPose.getHeading()) // TODO: is this needed?
+                        .build();
+                new FollowPathCommand(follower, path);
+                break;
+            }
+
+            telemetry.addLine("No tag found");
+            telemetry.update();
+            Thread.sleep(50);
+        }
+    }
+}

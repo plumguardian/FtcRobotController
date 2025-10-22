@@ -4,7 +4,7 @@
   Each calibration is for a particular camera (indicated by USB vid & pid pair) and a particular
   capture resolution for the camera. Note: it is very important when capturing images used to calibrate
   a camera that the image acquisition tool can actually control this capture resolution within the camera
-  itself and that you use this setting correctly. Many image acquistion tools do not in fact provide
+  itself and that you use this setting correctly. Many image acquisition tools do not in fact provide
   this level of control.
 
   Beyond simply providing additional, new camera calibrations, calibrations provided herein can
@@ -147,14 +147,14 @@
     <!-- ======================================================================================= -->
 
     <!-- Logitech HD Webcam C270, Calibrated by Noah Andrews, 2019.03.13 using 3DF Zephyr -->
-    <!--<Camera vid="Logitech" pid="0x0825">
+    <Camera vid="Logitech" pid="0x0825">
         <Calibration
             size="640 480"
             focalLength="822.317f, 822.317f"
             principalPoint="319.495f, 242.502f"
             distortionCoefficients="-0.0449369, 1.17277, 0, 0, -3.63244, 0, 0, 0"
             />
-    </Camera> -->
+    </Camera>
 
     <!-- ======================================================================================= -->
 
