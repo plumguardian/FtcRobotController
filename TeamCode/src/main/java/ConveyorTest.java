@@ -23,5 +23,6 @@ public class ConveyorTest extends OpMode {
             ConveyorServo2.setPosition(1);
         }
         // FIXME: will it stop even without setting power to 0?
+        // I assume that depends on the zero power behavior
     }
 }
