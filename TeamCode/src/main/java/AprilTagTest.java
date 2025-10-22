@@ -10,7 +10,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.ArrayList;
 
 @SuppressWarnings("BusyWait")
-@Autonomous(name = "April Tag Test", group = "Robotics Team")
+@Autonomous(name = "April Tag Test", group = TeamCode.GROUP_NAME)
 public class AprilTagTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

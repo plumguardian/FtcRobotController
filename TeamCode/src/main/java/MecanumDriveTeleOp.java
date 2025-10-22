@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@TeleOp(name = "Mecanum Drive", group = "Robotics Team")
+@TeleOp(name = "Mecanum Drive", group = TeamCode.GROUP_NAME)
 public class MecanumDriveTeleOp extends OpMode {
     // This declares the four motors needed
     DcMotor frontLeftDrive;

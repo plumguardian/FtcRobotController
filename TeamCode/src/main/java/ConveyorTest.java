@@ -2,7 +2,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "Conveyor Test", group = "Robotics Team")
+@TeleOp(name = "Conveyor Test", group = TeamCode.GROUP_NAME)
 public class ConveyorTest extends OpMode {
     Servo ConveyorServo1;
     Servo ConveyorServo2;
