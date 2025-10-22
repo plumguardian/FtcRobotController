@@ -10,14 +10,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp(name = "Mecanum Drive (Manual)", group = TeamCode.GROUP_NAME)
 public class MecanumDriveTeleOpManual extends OpMode {
-    // This declares the four motors needed
-    DcMotor frontLeftDrive;
-    DcMotor frontRightDrive;
-    DcMotor backLeftDrive;
-    DcMotor backRightDrive;
-
-    // This declares the IMU needed to get the current direction the robot is facing
-    IMU imu;
+    private DcMotor frontLeftDrive;
+    private DcMotor frontRightDrive;
+    private DcMotor backLeftDrive;
+    private DcMotor backRightDrive;
+    private IMU imu;
 
     @Override
     public void init() {

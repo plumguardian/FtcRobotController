@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 public class TeamCode {
-    static final String GROUP_NAME = "Robotics Team";
+    /** The name of the group used for the OpModes */
+    public static final String GROUP_NAME = "Robotics Team";
 }

@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp(name = "Launch Mechanism", group = TeamCode.GROUP_NAME)
 public class LaunchMechanism extends OpMode {
-    DcMotor launchLeft;
-    DcMotor launchRight;
+    private DcMotor launchLeft;
+    private DcMotor launchRight;
 
     @Override
     public void init() {

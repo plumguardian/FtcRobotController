@@ -12,8 +12,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp(name = "Mecanum Drive", group = TeamCode.GROUP_NAME)
 public class MecanumDriveTeleOp extends OpMode {
-    MecanumDrive mecanumDrive;
-    IMU imu;
+    private MecanumDrive mecanumDrive;
+    private IMU imu;
 
     @Override
     public void init() {

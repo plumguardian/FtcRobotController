@@ -19,6 +19,7 @@ public class AprilTagTest extends LinearOpMode {
         AprilTagProcessor aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
         // BuiltinCameraDirection.BACK can be used as a camera if it exists
         VisionPortal visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
+        // TODO: is camera calibration being applied? maybe check vid and pid.
 
         waitForStart();
 
@@ -47,7 +48,5 @@ public class AprilTagTest extends LinearOpMode {
             telemetry.update();
             Thread.sleep(1000);
         }
-
-        visionPortal.close();
     }
 }
