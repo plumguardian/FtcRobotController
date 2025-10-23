@@ -16,9 +16,8 @@ public class LaunchMechanism extends OpMode {
 
         launchRight.setDirection(DcMotor.Direction.REVERSE);
 
-        // FIXME: encoder
-        launchLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        launchRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        launchLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launchRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override

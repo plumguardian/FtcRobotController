@@ -18,8 +18,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -30,10 +28,8 @@ import java.util.List;
 public class MecanumDriveAutonomous extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        AprilTagProcessor aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
-        // BuiltinCameraDirection.BACK can be used as a camera if it exists
-        VisionPortal visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
-        // TODO: is camera calibration (teamwebcamcalibrations.xml) being applied? maybe check vid and pid.
+        TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
+        TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
 
         FollowerConstants followerConstants = new FollowerConstants()
                 .mass(0.0) // TODO: find
@@ -72,12 +68,12 @@ public class MecanumDriveAutonomous extends LinearOpMode {
                 .yVelocity(0.0) // TODO: find
                 .motorCachingThreshold(0.0) // TODO: find
                 .staticFrictionCoefficient(0.0) // TODO: find
-                .nominalVoltage(0.0) // TODO: find
-                .useBrakeModeInTeleOp(true) // TODO: find
-                .useVoltageCompensation(true); // TODO: find
+                .nominalVoltage(12.0) // TODO: find
+                .useBrakeModeInTeleOp(false) // TODO: find
+                .useVoltageCompensation(false); // TODO: find
         mecanumConstants.setFrontLeftVector(new Vector()); // TODO: find
         PathConstraints pathConstraints = new PathConstraints(0.995, 100);
-        DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants() // TODO: if we have odometry pods, use that plus IMU
+        DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants() // TODO: if we have odometry pods, use that plus IMU. Maybe use SolversLib's mecanum odometry
                 .leftFrontMotorName("fld")
                 .leftFrontEncoderDirection(Encoder.FORWARD) // FIXME: test this and make sure that all ticks go up when going forward. If not, make it reverse
                 .leftRearMotorName("bld")
@@ -102,11 +98,8 @@ public class MecanumDriveAutonomous extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            telemetry.addData("Camera State", visionPortal.getCameraState());
-            telemetry.update();
-            Thread.sleep(50);
-        }
+        hardwareGetter.waitForVision(vision.visionPortal());
+        AprilTagProcessor aprilTagProcessor = vision.aprilTagProcessor();
 
         telemetry.addLine("Starting...");
         telemetry.update();
@@ -114,7 +107,8 @@ public class MecanumDriveAutonomous extends LinearOpMode {
         while (opModeIsActive()) {
             List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
             if (!detections.isEmpty()) {
-                AprilTagDetection detection = detections.get(0); // ignore all
+                @SuppressWarnings("SequencedCollectionMethodCanBeUsed")
+                AprilTagDetection detection = detections.get(0);
                 Pose endPose = new Pose(detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.bearing, FTCCoordinates.INSTANCE).getAsCoordinateSystem(PedroCoordinates.INSTANCE); // FIXME: may be wrong system
                 follower.update();
                 PathChain path = follower.pathBuilder()
