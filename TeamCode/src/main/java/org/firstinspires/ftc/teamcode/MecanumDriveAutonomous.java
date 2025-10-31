@@ -24,12 +24,15 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 
 @SuppressWarnings("BusyWait")
-@Autonomous(name = "Mecanum Drive", group = TeamCode.GROUP_NAME)
+@Autonomous(name = "Mecanum Drive Auto", group = TeamCode.GROUP_NAME)
 public class MecanumDriveAutonomous extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
+
+        // TODO: do something that uses getMotorRpm
+        // check Motor constructors
 
         FollowerConstants followerConstants = new FollowerConstants()
                 .mass(0.0) // TODO: find

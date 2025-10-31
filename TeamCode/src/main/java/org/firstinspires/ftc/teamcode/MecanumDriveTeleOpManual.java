@@ -22,13 +22,9 @@ public class MecanumDriveTeleOpManual extends OpMode {
         backLeftDrive = hardwareMap.get(DcMotor.class, "bld");
         backRightDrive = hardwareMap.get(DcMotor.class, "brd");
 
-        // We set the left motors in reverse which is needed for drive trains where the left
-        // motors are opposite to the right ones.
         backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
         frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
 
-        // This uses RUN_USING_ENCODER to be more accurate.   If you don't have the encoder
-        // wires, you should remove these
         frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -45,21 +41,16 @@ public class MecanumDriveTeleOpManual extends OpMode {
         telemetry.addLine("The left joystick sets the robot direction");
         telemetry.addLine("Moving the right joystick left and right turns the robot");
 
-        // If you press the A button, then you reset the Yaw to be zero from the way
-        // the robot is currently pointing
         if (gamepad1.a) {
             telemetry.addLine("IMU reset");
             imu.resetYaw();
         }
-        // If you press the left bumper, you get a drive from the point of view of the robot
-        // (much like driving an RC vehicle)
         if (gamepad1.left_bumper)
             drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         else
             driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
     }
 
-    // This routine drives the robot field relative
     private void driveFieldRelative(double forward, double right, double rotate) {
         // First, convert direction being asked to drive to polar coordinates
         double theta = Math.atan2(forward, right);
@@ -83,7 +74,7 @@ public class MecanumDriveTeleOpManual extends OpMode {
         drive(newForward, newRight, rotate);
     }
 
-    // Thanks to FTC16072 for sharing this code!!
+    // Code by FTC16072
     public void drive(double forward, double right, double rotate) {
         // This calculates the power needed for each wheel based on the amount of forward,
         // strafe right, and rotate

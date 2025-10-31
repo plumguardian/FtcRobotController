@@ -16,6 +16,10 @@ public class AprilTagTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
+        // TODO: check if webcam works
+        telemetry.addData("a", vision.visionPortal().getActiveCamera().getDeviceName());
+        telemetry.addData("b", vision.visionPortal().getActiveCamera().getManufacturer());
+        telemetry.addData("c", vision.visionPortal().getActiveCamera().getSerialNumber());
 
         waitForStart();
 
@@ -35,7 +39,7 @@ public class AprilTagTest extends LinearOpMode {
                 for (AprilTagDetection detection : detections) {
                     Telemetry.Item item = telemetry.addData("id", detection.id);
                     if (detection.metadata != null)
-                                item.addData("name", detection.metadata.name);
+                        item.addData("name", detection.metadata.name);
                 }
 
             telemetry.update();

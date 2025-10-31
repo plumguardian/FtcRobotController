@@ -5,11 +5,14 @@ import androidx.annotation.Nullable;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.seattlesolvers.solverslib.hardware.motors.Motor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
+import java.util.Map;
 
 public class TeamCode {
     /** The name of the group used for the OpModes */
@@ -19,6 +22,25 @@ public class TeamCode {
     public static class HardwareGetter {
         private final HardwareMap hardwareMap;
         @Nullable private final Telemetry telemetry;
+
+        public final static Map<String, Motor.GoBILDA> motorRpmMap = Map.of(
+                "fld", Motor.GoBILDA.RPM_312,
+                "frd", Motor.GoBILDA.RPM_312,
+                "bld", Motor.GoBILDA.RPM_312,
+                "brd", Motor.GoBILDA.RPM_312
+        );
+
+        public Motor.GoBILDA getMotorRpm(final String name) {
+            Motor.GoBILDA motor = motorRpmMap.get(name);
+            if (motor == null) {
+                if (telemetry != null) {
+                    telemetry.addData("Motor not in RPM map", name);
+                    telemetry.update();
+                }
+                return Motor.GoBILDA.NONE;
+            }
+            return motor;
+        }
 
         public HardwareGetter(final HardwareMap hardwareMap, @Nullable final Telemetry telemetry) {
             this.hardwareMap = hardwareMap;

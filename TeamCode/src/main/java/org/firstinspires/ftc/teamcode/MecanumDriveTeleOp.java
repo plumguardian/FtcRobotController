@@ -16,19 +16,15 @@ public class MecanumDriveTeleOp extends OpMode {
 
     @Override
     public void init() {
-        // TODO: check GoBILDA RPM
-        Motor frontLeftDrive = new Motor(hardwareMap, "fld", Motor.GoBILDA.RPM_312);
-        Motor frontRightDrive = new Motor(hardwareMap, "frd", Motor.GoBILDA.RPM_312);
-        Motor backLeftDrive = new Motor(hardwareMap, "bld", Motor.GoBILDA.RPM_312);
-        Motor backRightDrive = new Motor(hardwareMap, "brd", Motor.GoBILDA.RPM_312);
+        TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
+        Motor frontLeftDrive = new Motor(hardwareMap, "fld", hardwareGetter.getMotorRpm("fld"));
+        Motor frontRightDrive = new Motor(hardwareMap, "frd", hardwareGetter.getMotorRpm("frd"));
+        Motor backLeftDrive = new Motor(hardwareMap, "bld", hardwareGetter.getMotorRpm("bld"));
+        Motor backRightDrive = new Motor(hardwareMap, "brd", hardwareGetter.getMotorRpm("brd"));
 
-        // We set the left motors in reverse which is needed for drive trains where the left
-        // motors are opposite to the right ones.
         backLeftDrive.setInverted(true);
         frontLeftDrive.setInverted(true);
 
-        // This uses RUN_USING_ENCODER to be more accurate.   If you don't have the encoder
-        // wires, you should remove these
         frontLeftDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRightDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeftDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -36,7 +32,7 @@ public class MecanumDriveTeleOp extends OpMode {
 
         mecanumDrive = new MecanumDrive(frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive);
 
-        imu = new TeamCode.HardwareGetter(hardwareMap, telemetry).getIMU();
+        imu = hardwareGetter.getIMU();
     }
 
     @Override
@@ -47,14 +43,11 @@ public class MecanumDriveTeleOp extends OpMode {
         telemetry.addLine("The left joystick sets the robot direction");
         telemetry.addLine("Moving the right joystick left and right turns the robot");
 
-        // If you press the A button, then you reset the Yaw to be zero from the way
-        // the robot is currently pointing
         if (gamepad1.a) {
             telemetry.addLine("IMU reset");
             imu.resetYaw();
         }
-        // If you press the left bumper, you get a drive from the point of view of the robot
-        // (much like driving an RC vehicle)
+
         if (gamepad1.left_bumper)
             mecanumDrive.driveRobotCentric(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gamepad1.right_bumper);
         else
