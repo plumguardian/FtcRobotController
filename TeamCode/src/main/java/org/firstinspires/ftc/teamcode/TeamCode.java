@@ -19,10 +19,7 @@ public class TeamCode {
     public static final String GROUP_NAME = "Robotics Team";
 
     @SuppressWarnings("unused")
-    public static class HardwareGetter {
-        private final HardwareMap hardwareMap;
-        @Nullable private final Telemetry telemetry;
-
+    public record HardwareGetter(HardwareMap hardwareMap, @Nullable Telemetry telemetry) {
         public final static Map<String, Motor.GoBILDA> motorRpmMap = Map.of(
                 "fld", Motor.GoBILDA.RPM_312,
                 "frd", Motor.GoBILDA.RPM_312,
@@ -40,11 +37,6 @@ public class TeamCode {
                 return Motor.GoBILDA.NONE;
             }
             return motor;
-        }
-
-        public HardwareGetter(final HardwareMap hardwareMap, @Nullable final Telemetry telemetry) {
-            this.hardwareMap = hardwareMap;
-            this.telemetry = telemetry;
         }
 
         public HardwareGetter(final HardwareMap hardwareMap) { this(hardwareMap, null); }
