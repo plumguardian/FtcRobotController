@@ -63,7 +63,6 @@ public class TeamCode {
             final AprilTagProcessor aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
             // BuiltinCameraDirection.BACK can be used as a camera if it exists
             final VisionPortal visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
-            // TODO: is camera calibration (teamwebcamcalibrations.xml) being applied? maybe check vid and pid.
             return new Vision(aprilTagProcessor, visionPortal);
         }
 

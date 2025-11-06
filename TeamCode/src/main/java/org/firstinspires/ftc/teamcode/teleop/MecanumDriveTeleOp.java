@@ -11,7 +11,6 @@ import com.seattlesolvers.solverslib.drivebase.MecanumDrive;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -36,13 +35,15 @@ public class MecanumDriveTeleOp extends OpMode {
 
         backLeftDrive.setInverted(true);
         frontLeftDrive.setInverted(true);
-        backRightDrive.setInverted(true);
+        backRightDrive.setInverted(false);
+        frontRightDrive.setInverted(true);
 
-        // FIXME: encoders
-        frontLeftDrive.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRightDrive.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeftDrive.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRightDrive.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // FIXME: Motor class may handle encoder
+
+        backLeftDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        frontLeftDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        backRightDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        frontRightDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
         mecanumDrive = new MecanumDrive(frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive);
 

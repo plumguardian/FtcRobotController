@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-//import com.bylazar.camerastream.PanelsCameraStream;
+import com.bylazar.camerastream.PanelsCameraStream;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
+import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -18,20 +19,15 @@ public class AprilTagTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
-        // TODO: check if webcam works
-//        telemetry.addData("a", vision.visionPortal().getActiveCamera().getDeviceName());
-//        telemetry.addData("b", vision.visionPortal().getActiveCamera().getManufacturer());
-//        telemetry.addData("c", vision.visionPortal().getActiveCamera().getSerialNumber());
-        // FIXME: getActiveCamera only supported for switchable cameras
 
         waitForStart();
 
         if (isStopRequested()) return;
 
-        hardwareGetter.waitForVision(vision.visionPortal());
+        VisionPortal visionPortal = vision.visionPortal();
+        hardwareGetter.waitForVision(visionPortal);
         AprilTagProcessor aprilTagProcessor = vision.aprilTagProcessor();
-        // FIXME: panels crashing
-//        PanelsCameraStream.INSTANCE.startStream(vision.visionPortal(), 30); // TODO: find some way to get at runtime
+        PanelsCameraStream.INSTANCE.startStream(visionPortal, (int) visionPortal.getFps());
 
         telemetry.addLine("Starting...");
         telemetry.update();
@@ -51,6 +47,6 @@ public class AprilTagTest extends LinearOpMode {
             Thread.sleep(1000);
         }
 
-//        PanelsCameraStream.INSTANCE.stopStream();
+        PanelsCameraStream.INSTANCE.stopStream();
     }
 }
