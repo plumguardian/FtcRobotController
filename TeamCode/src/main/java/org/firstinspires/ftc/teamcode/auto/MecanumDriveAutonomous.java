@@ -32,6 +32,7 @@ public class MecanumDriveAutonomous extends LinearOpMode {
         TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
 
+        // TODO: compare motor.getMotorType().getAchieveableMaxTicksPerSecond(); and gobildaType.getAchievableMaxTicksPerSecond();
         // TODO: do something that uses getMotorRpm
         // check Motor constructors
 

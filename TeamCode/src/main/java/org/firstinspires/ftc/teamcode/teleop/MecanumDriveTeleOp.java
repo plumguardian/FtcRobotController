@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.*;
+import static org.firstinspires.ftc.teamcode.config.DriveConfig.SolverslibConfigPanels.*;
 
 import com.bylazar.gamepad.GamepadManager;
 import com.bylazar.gamepad.PanelsGamepad;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.seattlesolvers.solverslib.drivebase.MecanumDrive;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
@@ -38,7 +40,26 @@ public class MecanumDriveTeleOp extends OpMode {
         backRightDrive.setInverted(false);
         frontRightDrive.setInverted(true);
 
-        // FIXME: Motor class may handle encoder
+        backLeftDrive.stopAndResetEncoder();
+        frontLeftDrive.stopAndResetEncoder();
+        backRightDrive.stopAndResetEncoder();
+        frontRightDrive.stopAndResetEncoder();
+
+        if (useSolverslibEncoders) {
+            backLeftDrive.setRunMode(Motor.RunMode.VelocityControl);
+            frontLeftDrive.setRunMode(Motor.RunMode.VelocityControl);
+            backRightDrive.setRunMode(Motor.RunMode.VelocityControl);
+            frontRightDrive.setRunMode(Motor.RunMode.VelocityControl);
+        } else {
+            backLeftDrive.setRunMode(Motor.RunMode.RawPower);
+            frontLeftDrive.setRunMode(Motor.RunMode.RawPower);
+            backRightDrive.setRunMode(Motor.RunMode.RawPower);
+            frontRightDrive.setRunMode(Motor.RunMode.RawPower);
+            backLeftDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeftDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRightDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontRightDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
 
         backLeftDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         frontLeftDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);

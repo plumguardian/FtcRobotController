@@ -15,6 +15,12 @@ public class DriveConfig {
         public static boolean USE_PANELS_GAMEPAD = false;
     }
 
+    @Configurable
+    public static class SolverslibConfigPanels {
+        // Don't manually change values. Control it with panels.
+        public static boolean useSolverslibEncoders = false;
+    }
+
     @SuppressWarnings("UnusedReturnValue")
     public static boolean updateYawToggle() {
         OLD_RESET_YAW_TOGGLE = RESET_YAW_TOGGLE;
