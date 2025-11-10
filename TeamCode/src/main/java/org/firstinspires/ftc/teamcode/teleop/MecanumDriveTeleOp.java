@@ -40,6 +40,11 @@ public class MecanumDriveTeleOp extends OpMode {
         backRightDrive.setInverted(false);
         frontRightDrive.setInverted(true);
 
+        backLeftDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        frontLeftDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        backRightDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        frontRightDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+
         backLeftDrive.stopAndResetEncoder();
         frontLeftDrive.stopAndResetEncoder();
         backRightDrive.stopAndResetEncoder();
@@ -60,11 +65,6 @@ public class MecanumDriveTeleOp extends OpMode {
             backRightDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontRightDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-
-        backLeftDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        frontLeftDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        backRightDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        frontRightDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
         mecanumDrive = new MecanumDrive(frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive);
 

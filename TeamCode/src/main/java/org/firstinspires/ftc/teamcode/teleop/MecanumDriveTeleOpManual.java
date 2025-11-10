@@ -38,6 +38,11 @@ public class MecanumDriveTeleOpManual extends OpMode {
         backRightDrive.setDirection(DcMotor.Direction.REVERSE);
         frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
 
+        backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         // FIXME: encoders
         frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -47,11 +52,6 @@ public class MecanumDriveTeleOpManual extends OpMode {
         frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         imu = new TeamCode.HardwareGetter(hardwareMap, telemetry).getIMU();
 
