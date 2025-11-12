@@ -15,6 +15,9 @@ public class ConveyorTest extends OpMode {
     public void init() {
         ConveyorServo1 = hardwareMap.get(Servo.class, "c1");
         ConveyorServo2 = hardwareMap.get(Servo.class, "c2");
+
+        ConveyorServo1.setDirection(Servo.Direction.FORWARD);
+        ConveyorServo2.setDirection(Servo.Direction.FORWARD);
     }
 
     @Override
