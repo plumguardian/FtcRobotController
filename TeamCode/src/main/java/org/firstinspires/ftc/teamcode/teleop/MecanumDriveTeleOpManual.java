@@ -34,8 +34,8 @@ public class MecanumDriveTeleOpManual extends OpMode {
         backRightDrive = hardwareMap.get(DcMotor.class, "brd");
 
         backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-        frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-        backRightDrive.setDirection(DcMotor.Direction.REVERSE);
+        frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
+        backRightDrive.setDirection(DcMotor.Direction.FORWARD);
         frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
 
         backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -128,19 +128,27 @@ public class MecanumDriveTeleOpManual extends OpMode {
         maxPower = Math.max(maxPower, Math.abs(backRightPower));
         maxPower = Math.max(maxPower, Math.abs(backLeftPower));
 
-        panelsTelemetry.addData("frontLeft", maxSpeed * (frontLeftPower / maxPower));
-        panelsTelemetry.addData("frontRight", maxSpeed * (frontRightPower / maxPower));
-        panelsTelemetry.addData("backLeft", maxSpeed * (backLeftPower / maxPower));
-        panelsTelemetry.addData("backRight", maxSpeed * (backRightPower / maxPower));
+        final double fld = maxSpeed * (frontLeftPower / maxPower);
+        final double frd = maxSpeed * (frontRightPower / maxPower);
+        final double bld = maxSpeed * (backLeftPower / maxPower);
+        final double brd = maxSpeed * (backRightPower / maxPower);
+        panelsTelemetry.addData("frontLeft", fld);
+        panelsTelemetry.addData("frontRight", frd);
+        panelsTelemetry.addData("backLeft", bld);
+        panelsTelemetry.addData("backRight", brd);
         panelsTelemetry.addData("yaw", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        panelsTelemetry.addData("encoderFrontLeft", frontLeftDrive.getCurrentPosition());
+        panelsTelemetry.addData("encoderFrontRight", frontRightDrive.getCurrentPosition());
+        panelsTelemetry.addData("encoderBackLeft", backLeftDrive.getCurrentPosition());
+        panelsTelemetry.addData("encoderBackRight", backRightDrive.getCurrentPosition());
         panelsTelemetry.update();
 
         // We multiply by maxSpeed so that it can be set lower for outreaches
         if (MOTORS_ACTIVE) {
-            frontLeftDrive.setPower(maxSpeed * (frontLeftPower / maxPower));
-            frontRightDrive.setPower(maxSpeed * (frontRightPower / maxPower));
-            backLeftDrive.setPower(maxSpeed * (backLeftPower / maxPower));
-            backRightDrive.setPower(maxSpeed * (backRightPower / maxPower));
+            frontLeftDrive.setPower(fld);
+            frontRightDrive.setPower(frd);
+            backLeftDrive.setPower(bld);
+            backRightDrive.setPower(brd);
         } else {
             frontLeftDrive.setPower(0);
             frontRightDrive.setPower(0);

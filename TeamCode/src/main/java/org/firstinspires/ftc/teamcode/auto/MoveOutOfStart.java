@@ -1,33 +1,27 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.*;
-//import static org.firstinspires.ftc.teamcode.config.DriveConfig.SolverslibConfigPanels.*;
-
-import com.bylazar.gamepad.GamepadManager;
-import com.bylazar.gamepad.PanelsGamepad;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
+import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
+import com.seattlesolvers.solverslib.drivebase.MecanumDrive;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.IMU;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.config.DriveConfig;
-import org.firstinspires.ftc.teamcode.config.MecanumDrivePanels;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
 
-@TeleOp(name = "Mecanum Drive", group = TeamCode.GROUP_NAME)
-public class MecanumDriveTeleOp extends OpMode {
-    private MecanumDrivePanels mecanumDrive;
-    private IMU imu;
-    private TelemetryManager.TelemetryWrapper panelsTelemetry;
-    private static GamepadManager panelsGamepad;
+// TODO: only works with blue alliance next to pillar
+@SuppressWarnings("BusyWait")
+@Autonomous(name = "Move Out Of Start", group = TeamCode.GROUP_NAME)
+public class MoveOutOfStart extends LinearOpMode {
+    @Configurable
+    private static class AutoMoveConfigPanels {
+        // Don't manually change values. Control it with panels.
+        public static int moveDist = 60_000;
+        public static double movePower = 0.2;
+    }
 
     @Override
-    public void init() {
+    public void runOpMode() throws InterruptedException {
         final TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         final Motor frontLeftDrive = new Motor(hardwareMap, "fld", hardwareGetter.getMotorRpm("fld"));
         final Motor frontRightDrive = new Motor(hardwareMap, "frd", hardwareGetter.getMotorRpm("frd"));
@@ -35,6 +29,7 @@ public class MecanumDriveTeleOp extends OpMode {
         final Motor backRightDrive = new Motor(hardwareMap, "brd", hardwareGetter.getMotorRpm("brd"));
         // TODO: compare motor.getMotorType().getAchieveableMaxTicksPerSecond(); and gobildaType.getAchievableMaxTicksPerSecond();
         telemetry.addLine(backRightDrive.motor.getMotorType().getAchieveableMaxTicksPerSecond() + " | " + hardwareGetter.getMotorRpm("brd").getAchievableMaxTicksPerSecond()); // FIXME: delete
+        telemetry.update();
 
         backLeftDrive.setInverted(true);
         frontLeftDrive.setInverted(false);
@@ -85,49 +80,20 @@ public class MecanumDriveTeleOp extends OpMode {
         backRightDrive.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRightDrive.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getFtcTelemetry();
+        final MecanumDrive mecanumDrive = new MecanumDrive(false, frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive);
 
-        mecanumDrive = new MecanumDrivePanels(false, frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, panelsTelemetry);
+        waitForStart();
+        if (isStopRequested()) return;
 
-        imu = hardwareGetter.getIMU();
-
-        panelsGamepad = PanelsGamepad.INSTANCE.getFirstManager();
-    }
-
-    @Override
-    public void start() { DriveConfig.updateYawToggle(); }
-
-    @Override
-    public void loop() {
-        // TODO: Does this need telemetry.update()?
-        telemetry.addLine("Press A to reset Yaw");
-        telemetry.addLine("Hold left bumper to drive in robot relative");
-        telemetry.addLine("The left joystick sets the robot direction");
-        telemetry.addLine("Moving the right joystick left and right turns the robot");
-
-        final Gamepad gamepad = USE_PANELS_GAMEPAD ? panelsGamepad.getAsFTCGamepad() : gamepad1;
-
-        if (DriveConfig.updateAndCheckYawToggle()) {
-            imu.resetYaw();
-            telemetry.addLine("IMU reset (panels)");
-            panelsTelemetry.addLine("IMU reset (panels)");
-        }
-        if (gamepad.a) {
-            telemetry.addLine("IMU reset");
-            imu.resetYaw();
+        for (int move = 0; move < AutoMoveConfigPanels.moveDist; move++) {
+            if (isStopRequested()) return;
+            if (!opModeIsActive()) return;
+            // TODO: Motors may be continuous, maybe just set and leave it
+            mecanumDrive.driveRobotCentric(AutoMoveConfigPanels.movePower, AutoMoveConfigPanels.movePower, 0);
         }
 
-        final double yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-        panelsTelemetry.addData("yaw", yaw);
-
-        if (MOTORS_ACTIVE) {
-            if (gamepad.left_bumper)
-                mecanumDrive.driveRobotCentric(gamepad.left_stick_x, -gamepad.left_stick_y, gamepad.right_stick_x, gamepad.right_bumper);
-            else
-                mecanumDrive.driveFieldCentric(gamepad.left_stick_x, -gamepad.left_stick_y, gamepad.right_stick_x, yaw, gamepad.right_bumper);
-        } else {
-            mecanumDrive.stop();
-            panelsTelemetry.update();
-        }
+        mecanumDrive.stop();
+        while (opModeIsActive())
+            Thread.sleep(100);
     }
 }

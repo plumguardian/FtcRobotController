@@ -28,7 +28,7 @@ public class TeamCode {
         );
 
         public Motor.GoBILDA getMotorRpm(final String name) {
-            Motor.GoBILDA motor = motorRpmMap.get(name);
+            final Motor.GoBILDA motor = motorRpmMap.get(name);
             if (motor == null) {
                 if (telemetry != null) {
                     telemetry.addData("Motor not in RPM map", name);

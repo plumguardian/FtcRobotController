@@ -41,7 +41,7 @@ public class LaunchMechanism extends OpMode {
 
     @Override
     public void loop() {
-        float power = gamepad1.right_trigger;
+        final float power = gamepad1.right_trigger;
         launchLeft.setPower(power);
         launchRight.setPower(power);
         telemetry.addData("power", power);

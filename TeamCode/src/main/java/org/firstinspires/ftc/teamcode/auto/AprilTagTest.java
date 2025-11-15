@@ -17,16 +17,16 @@ import java.util.List;
 public class AprilTagTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
-        TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
+        final TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
+        final TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
 
         waitForStart();
 
         if (isStopRequested()) return;
 
-        VisionPortal visionPortal = vision.visionPortal();
+        final VisionPortal visionPortal = vision.visionPortal();
         hardwareGetter.waitForVision(visionPortal);
-        AprilTagProcessor aprilTagProcessor = vision.aprilTagProcessor();
+        final AprilTagProcessor aprilTagProcessor = vision.aprilTagProcessor();
         final int fps = (int) visionPortal.getFps();
         telemetry.addData("FPS", fps);
         PanelsCameraStream.INSTANCE.startStream(visionPortal, fps);
@@ -35,12 +35,12 @@ public class AprilTagTest extends LinearOpMode {
         telemetry.update();
 
         while (opModeIsActive()) {
-            List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
+            final List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
             if (detections.isEmpty())
                 telemetry.addLine("No tags found");
             else
-                for (AprilTagDetection detection : detections) {
-                    Telemetry.Item item = telemetry.addData("id", detection.id);
+                for (final AprilTagDetection detection : detections) {
+                    final Telemetry.Item item = telemetry.addData("id", detection.id);
                     if (detection.metadata != null)
                         item.addData("name", detection.metadata.name);
                 }

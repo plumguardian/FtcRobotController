@@ -28,7 +28,7 @@ public class DriveConfig {
     }
 
     public static boolean updateAndCheckYawToggle() {
-        boolean result = RESET_YAW_TOGGLE != OLD_RESET_YAW_TOGGLE;
+        final boolean result = RESET_YAW_TOGGLE != OLD_RESET_YAW_TOGGLE;
         updateYawToggle();
         return result;
     }

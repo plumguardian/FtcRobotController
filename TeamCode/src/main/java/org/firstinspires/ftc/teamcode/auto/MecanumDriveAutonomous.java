@@ -29,14 +29,14 @@ import java.util.List;
 public class MecanumDriveAutonomous extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
-        TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
+        final TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
+        final TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
 
         // TODO: compare motor.getMotorType().getAchieveableMaxTicksPerSecond(); and gobildaType.getAchievableMaxTicksPerSecond();
         // TODO: do something that uses getMotorRpm
         // check Motor constructors
 
-        FollowerConstants followerConstants = new FollowerConstants()
+        final FollowerConstants followerConstants = new FollowerConstants()
                 .mass(0.0) // TODO: find
                 .forwardZeroPowerAcceleration(0.0) // TODO: find
                 .lateralZeroPowerAcceleration(0.0) // TODO: find
@@ -59,7 +59,7 @@ public class MecanumDriveAutonomous extends LinearOpMode {
                 .translationalPIDFSwitch(0.0) // TODO: find
                 .translationalPIDFCoefficients(null) // TODO: find
                 .BEZIER_CURVE_SEARCH_LIMIT(0); // TODO: find
-        MecanumConstants mecanumConstants = new MecanumConstants()
+        final MecanumConstants mecanumConstants = new MecanumConstants()
                 .maxPower(1)
                 .leftFrontMotorName("fld")
                 .leftFrontMotorDirection(DcMotor.Direction.REVERSE)
@@ -77,8 +77,8 @@ public class MecanumDriveAutonomous extends LinearOpMode {
                 .useBrakeModeInTeleOp(false) // TODO: find
                 .useVoltageCompensation(false); // TODO: find
         mecanumConstants.setFrontLeftVector(new Vector()); // TODO: find
-        PathConstraints pathConstraints = new PathConstraints(0.995, 100);
-        DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants() // TODO: if we have odometry pods, use that plus IMU. Maybe use SolversLib's mecanum odometry
+        final PathConstraints pathConstraints = new PathConstraints(0.995, 100);
+        final DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants() // TODO: if we have odometry pods, use that plus IMU. Maybe use SolversLib's mecanum odometry
                 .leftFrontMotorName("fld")
                 .leftFrontEncoderDirection(Encoder.FORWARD) // FIXME: test this and make sure that all ticks go up when going forward. If not, make it reverse
                 .leftRearMotorName("bld")
@@ -92,7 +92,7 @@ public class MecanumDriveAutonomous extends LinearOpMode {
                 .turnTicksToInches(0.0) // TODO: find
                 .robotLength(0.0) // TODO: find
                 .robotWidth(0.0); // TODO: find
-        Follower follower = new FollowerBuilder(followerConstants, hardwareMap)
+        final Follower follower = new FollowerBuilder(followerConstants, hardwareMap)
                 .mecanumDrivetrain(mecanumConstants)
                 .pathConstraints(pathConstraints)
                 .driveEncoderLocalizer(driveEncoderConstants)
@@ -104,19 +104,19 @@ public class MecanumDriveAutonomous extends LinearOpMode {
         if (isStopRequested()) return;
 
         hardwareGetter.waitForVision(vision.visionPortal());
-        AprilTagProcessor aprilTagProcessor = vision.aprilTagProcessor();
+        final AprilTagProcessor aprilTagProcessor = vision.aprilTagProcessor();
 
         telemetry.addLine("Starting...");
         telemetry.update();
 
         while (opModeIsActive()) {
-            List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
+            final List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
             if (!detections.isEmpty()) {
                 @SuppressWarnings("SequencedCollectionMethodCanBeUsed")
-                AprilTagDetection detection = detections.get(0);
-                Pose endPose = new Pose(detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.bearing, FTCCoordinates.INSTANCE).getAsCoordinateSystem(PedroCoordinates.INSTANCE); // FIXME: may be wrong system
+                final AprilTagDetection detection = detections.get(0);
+                final Pose endPose = new Pose(detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.bearing, FTCCoordinates.INSTANCE).getAsCoordinateSystem(PedroCoordinates.INSTANCE); // FIXME: may be wrong system
                 follower.update();
-                PathChain path = follower.pathBuilder()
+                final PathChain path = follower.pathBuilder()
                         .addPath(new BezierLine(follower.getPose(), endPose))
                          .setLinearHeadingInterpolation(follower.getHeading(), endPose.getHeading()) // TODO: is this needed?
                         .build();
