@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auto;
+package org.firstinspires.ftc.teamcode.auto.test;
 
 import com.bylazar.camerastream.PanelsCameraStream;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -43,6 +43,7 @@ public class AprilTagTest extends LinearOpMode {
                     final Telemetry.Item item = telemetry.addData("id", detection.id);
                     if (detection.metadata != null)
                         item.addData("name", detection.metadata.name);
+                    item.addData("dist", Math.sqrt(Math.pow(detection.ftcPose.x, 2) + Math.pow(detection.ftcPose.y, 2) + Math.pow(detection.ftcPose.z, 2)));
                 }
 
             telemetry.update();
