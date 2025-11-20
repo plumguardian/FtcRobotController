@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.*;
+import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.MOTORS_ACTIVE;
+import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.USE_PANELS_GAMEPAD;
 
 import com.bylazar.gamepad.GamepadManager;
 import com.bylazar.gamepad.PanelsGamepad;
@@ -9,49 +10,59 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.config.DriveConfig;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
 
 @TeleOp(name = "Mecanum Drive (Manual)", group = TeamCode.GROUP_NAME)
 public class MecanumDriveTeleOpManual extends OpMode {
-    private DcMotor frontLeftDrive;
-    private DcMotor frontRightDrive;
-    private DcMotor backLeftDrive;
-    private DcMotor backRightDrive;
+    private DcMotorEx frontLeftDrive;
+    private double frontLeftDriveTicksPerSecond;
+    private DcMotorEx frontRightDrive;
+    private double frontRightDriveTicksPerSecond;
+    private DcMotorEx backLeftDrive;
+    private double backLeftDriveTicksPerSecond;
+    private DcMotorEx backRightDrive;
+    private double backRightDriveTicksPerSecond;
     private IMU imu;
     private TelemetryManager.TelemetryWrapper panelsTelemetry;
-    private static GamepadManager panelsGamepad;
+    private GamepadManager panelsGamepad;
 
     @Override
     public void init() {
-        frontLeftDrive = hardwareMap.get(DcMotor.class, "fld");
-        frontRightDrive = hardwareMap.get(DcMotor.class, "frd");
-        backLeftDrive = hardwareMap.get(DcMotor.class, "bld");
-        backRightDrive = hardwareMap.get(DcMotor.class, "brd");
+        frontLeftDrive = hardwareMap.get(DcMotorEx.class, "fld");
+        frontRightDrive = hardwareMap.get(DcMotorEx.class, "frd");
+        backLeftDrive = hardwareMap.get(DcMotorEx.class, "bld");
+        backRightDrive = hardwareMap.get(DcMotorEx.class, "brd");
 
-        backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
         frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
-        backRightDrive.setDirection(DcMotor.Direction.FORWARD);
         frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
+        backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+        backRightDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        // FIXME: encoders
         frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        frontLeftDriveTicksPerSecond = frontLeftDrive.getMotorType().getAchieveableMaxTicksPerSecond();
+        frontRightDriveTicksPerSecond = frontRightDrive.getMotorType().getAchieveableMaxTicksPerSecond();
+        backLeftDriveTicksPerSecond = backLeftDrive.getMotorType().getAchieveableMaxTicksPerSecond();
+        backRightDriveTicksPerSecond = backRightDrive.getMotorType().getAchieveableMaxTicksPerSecond();
 
         imu = new TeamCode.HardwareGetter(hardwareMap, telemetry).getIMU();
 
@@ -64,7 +75,6 @@ public class MecanumDriveTeleOpManual extends OpMode {
 
     @Override
     public void loop() {
-        // TODO: Does this need telemetry.update()?
         telemetry.addLine("Press A to reset Yaw");
         telemetry.addLine("Hold left bumper to drive in robot relative");
         telemetry.addLine("The left joystick sets the robot direction");
@@ -95,12 +105,6 @@ public class MecanumDriveTeleOpManual extends OpMode {
         // Second, rotate angle by the angle the robot is pointing
         theta = AngleUnit.normalizeRadians(theta -
                 imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
-
-        /* Reports orientation
-        telemetry.addLine("yaw: " + imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
-        telemetry.addLine("roll: " + imu.getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES));
-        telemetry.addLine("pitch: " + imu.getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES));
-         */
 
         // Third, convert back to cartesian
         final double newForward = r * Math.sin(theta);
@@ -136,7 +140,10 @@ public class MecanumDriveTeleOpManual extends OpMode {
         panelsTelemetry.addData("frontRight", frd);
         panelsTelemetry.addData("backLeft", bld);
         panelsTelemetry.addData("backRight", brd);
-        panelsTelemetry.addData("yaw", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        final YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+        panelsTelemetry.addData("yaw", angles.getYaw(AngleUnit.DEGREES));
+        panelsTelemetry.addData("pitch", angles.getPitch(AngleUnit.DEGREES));
+        panelsTelemetry.addData("roll", angles.getRoll(AngleUnit.DEGREES));
         panelsTelemetry.addData("encoderFrontLeft", frontLeftDrive.getCurrentPosition());
         panelsTelemetry.addData("encoderFrontRight", frontRightDrive.getCurrentPosition());
         panelsTelemetry.addData("encoderBackLeft", backLeftDrive.getCurrentPosition());
@@ -145,10 +152,10 @@ public class MecanumDriveTeleOpManual extends OpMode {
 
         // We multiply by maxSpeed so that it can be set lower for outreaches
         if (MOTORS_ACTIVE) {
-            frontLeftDrive.setPower(fld);
-            frontRightDrive.setPower(frd);
-            backLeftDrive.setPower(bld);
-            backRightDrive.setPower(brd);
+            frontLeftDrive.setVelocity(fld * frontLeftDriveTicksPerSecond);
+            frontRightDrive.setVelocity(frd * frontRightDriveTicksPerSecond);
+            backLeftDrive.setVelocity(bld * backLeftDriveTicksPerSecond);
+            backRightDrive.setVelocity(brd * backRightDriveTicksPerSecond);
         } else {
             frontLeftDrive.setPower(0);
             frontRightDrive.setPower(0);

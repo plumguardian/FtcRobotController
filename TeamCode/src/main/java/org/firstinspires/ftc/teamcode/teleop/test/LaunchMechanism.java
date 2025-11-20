@@ -45,6 +45,5 @@ public class LaunchMechanism extends OpMode {
         launchLeft.setPower(power);
         launchRight.setPower(power);
         telemetry.addData("power", power);
-        telemetry.update();
     }
 }

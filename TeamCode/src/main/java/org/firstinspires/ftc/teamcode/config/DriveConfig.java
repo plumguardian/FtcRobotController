@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.config;
 
-import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.*;
+import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.RESET_YAW_TOGGLE;
 
 import com.bylazar.configurables.annotations.Configurable;
 
@@ -18,7 +18,7 @@ public class DriveConfig {
     @Configurable
     public static class SolverslibConfigPanels {
         // Don't manually change values. Control it with panels.
-        public static boolean useSolverslibEncoders = false;
+        public static boolean useSolverslibEncoders = true;
     }
 
     @SuppressWarnings("UnusedReturnValue")
