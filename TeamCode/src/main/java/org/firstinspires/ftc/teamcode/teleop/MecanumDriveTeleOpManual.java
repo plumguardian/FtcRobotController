@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.MOTORS_ACTIVE;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.USE_PANELS_GAMEPAD;
+import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.enableHardwareEncoders;
 
 import com.bylazar.gamepad.GamepadManager;
 import com.bylazar.gamepad.PanelsGamepad;
@@ -32,6 +33,7 @@ public class MecanumDriveTeleOpManual extends OpMode {
     private IMU imu;
     private TelemetryManager.TelemetryWrapper panelsTelemetry;
     private GamepadManager panelsGamepad;
+    private boolean useVelocity;
 
     @Override
     public void init() {
@@ -40,7 +42,7 @@ public class MecanumDriveTeleOpManual extends OpMode {
         backLeftDrive = hardwareMap.get(DcMotorEx.class, "bld");
         backRightDrive = hardwareMap.get(DcMotorEx.class, "brd");
 
-        frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
+        frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
         frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
         backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
         backRightDrive.setDirection(DcMotor.Direction.FORWARD);
@@ -54,15 +56,25 @@ public class MecanumDriveTeleOpManual extends OpMode {
         frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        frontLeftDriveTicksPerSecond = frontLeftDrive.getMotorType().getAchieveableMaxTicksPerSecond();
-        frontRightDriveTicksPerSecond = frontRightDrive.getMotorType().getAchieveableMaxTicksPerSecond();
-        backLeftDriveTicksPerSecond = backLeftDrive.getMotorType().getAchieveableMaxTicksPerSecond();
-        backRightDriveTicksPerSecond = backRightDrive.getMotorType().getAchieveableMaxTicksPerSecond();
+        if (enableHardwareEncoders) {
+            telemetry.addLine("Using hardware encoders");
+            frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            useVelocity = true;
+            frontLeftDriveTicksPerSecond = frontLeftDrive.getMotorType().getAchieveableMaxTicksPerSecond();
+            frontRightDriveTicksPerSecond = frontRightDrive.getMotorType().getAchieveableMaxTicksPerSecond();
+            backLeftDriveTicksPerSecond = backLeftDrive.getMotorType().getAchieveableMaxTicksPerSecond();
+            backRightDriveTicksPerSecond = backRightDrive.getMotorType().getAchieveableMaxTicksPerSecond();
+        } else {
+            telemetry.addLine("Not using hardware encoders");
+            frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            useVelocity = false;
+        }
 
         imu = new TeamCode.HardwareGetter(hardwareMap, telemetry).getIMU();
 
@@ -150,12 +162,18 @@ public class MecanumDriveTeleOpManual extends OpMode {
         panelsTelemetry.addData("encoderBackRight", backRightDrive.getCurrentPosition());
         panelsTelemetry.update();
 
-        // We multiply by maxSpeed so that it can be set lower for outreaches
         if (MOTORS_ACTIVE) {
-            frontLeftDrive.setVelocity(fld * frontLeftDriveTicksPerSecond);
-            frontRightDrive.setVelocity(frd * frontRightDriveTicksPerSecond);
-            backLeftDrive.setVelocity(bld * backLeftDriveTicksPerSecond);
-            backRightDrive.setVelocity(brd * backRightDriveTicksPerSecond);
+            if (useVelocity) {
+                frontLeftDrive.setVelocity(fld * frontLeftDriveTicksPerSecond);
+                frontRightDrive.setVelocity(frd * frontRightDriveTicksPerSecond);
+                backLeftDrive.setVelocity(bld * backLeftDriveTicksPerSecond);
+                backRightDrive.setVelocity(brd * backRightDriveTicksPerSecond);
+            } else {
+                frontLeftDrive.setPower(fld);
+                frontRightDrive.setPower(frd);
+                backLeftDrive.setPower(bld);
+                backRightDrive.setPower(brd);
+            }
         } else {
             frontLeftDrive.setPower(0);
             frontRightDrive.setPower(0);

@@ -16,9 +16,10 @@ public class DriveConfig {
     }
 
     @Configurable
-    public static class SolverslibConfigPanels {
+    public static class EncoderConfigPanels {
         // Don't manually change values. Control it with panels.
-        public static boolean useSolverslibEncoders = true;
+        public static boolean useVelocityControl = false;
+        public static boolean enableHardwareEncoders = true;
     }
 
     @SuppressWarnings("UnusedReturnValue")

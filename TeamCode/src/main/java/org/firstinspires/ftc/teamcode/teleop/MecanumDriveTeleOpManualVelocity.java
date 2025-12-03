@@ -2,7 +2,8 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.MOTORS_ACTIVE;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.USE_PANELS_GAMEPAD;
-import static org.firstinspires.ftc.teamcode.config.DriveConfig.SolverslibConfigPanels.useSolverslibEncoders;
+import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.enableHardwareEncoders;
+import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useVelocityControl;
 
 import com.bylazar.gamepad.GamepadManager;
 import com.bylazar.gamepad.PanelsGamepad;
@@ -41,7 +42,7 @@ public class MecanumDriveTeleOpManualVelocity extends OpMode {
         // TODO: compare motor.getMotorType().getAchieveableMaxTicksPerSecond(); and gobildaType.getAchievableMaxTicksPerSecond();
         telemetry.addLine(backRightDrive.motor.getMotorType().getAchieveableMaxTicksPerSecond() + " | " + hardwareGetter.getMotorRpm("brd").getAchievableMaxTicksPerSecond()); // FIXME: delete
 
-        frontLeftDrive.setInverted(false);
+        frontLeftDrive.setInverted(true);
         frontRightDrive.setInverted(false);
         backLeftDrive.setInverted(true);
         backRightDrive.setInverted(false);
@@ -56,23 +57,29 @@ public class MecanumDriveTeleOpManualVelocity extends OpMode {
         backLeftDrive.stopAndResetEncoder();
         backRightDrive.stopAndResetEncoder();
 
-        if (useSolverslibEncoders) {
-            telemetry.addLine("Using solvers lib encoders");
+        if (useVelocityControl) {
+            telemetry.addLine("Using velocity control");
             frontLeftDrive.setRunMode(Motor.RunMode.VelocityControl);
             frontRightDrive.setRunMode(Motor.RunMode.VelocityControl);
             backLeftDrive.setRunMode(Motor.RunMode.VelocityControl);
             backRightDrive.setRunMode(Motor.RunMode.VelocityControl);
         } else {
-            telemetry.addLine("Using built in encoders");
+            telemetry.addLine("Using raw power");
             frontLeftDrive.setRunMode(Motor.RunMode.RawPower);
             frontRightDrive.setRunMode(Motor.RunMode.RawPower);
             backLeftDrive.setRunMode(Motor.RunMode.RawPower);
             backRightDrive.setRunMode(Motor.RunMode.RawPower);
+        }
+
+        if (enableHardwareEncoders) {
+            telemetry.addLine("Using hardware encoders");
             frontLeftDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontRightDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backLeftDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRightDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
+        } else
+            telemetry.addLine("Not using hardware encoders");
+
         telemetry.update();
 
         frontLeftDrive.setCachingTolerance(0.00005);

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.auto.test;
 
 import com.bylazar.camerastream.PanelsCameraStream;
 import com.bylazar.field.FieldManager;
+import com.bylazar.field.FieldPresets;
 import com.bylazar.field.PanelsField;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -15,12 +16,12 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-@Autonomous(name = "April Tag Test", group = TeamCode.GROUP_NAME)
+@Autonomous(name = "Graph Field", group = TeamCode.GROUP_NAME)
 public class GraphFieldUsingAprilTags extends OpMode {
-    VisionPortal visionPortal;
-    AprilTagProcessor aprilTagProcessor;
-    int fps;
-    FieldManager field;
+    private VisionPortal visionPortal;
+    private AprilTagProcessor aprilTagProcessor;
+    private int fps;
+    private FieldManager field;
 
     @Override
     public void init() {
@@ -35,9 +36,10 @@ public class GraphFieldUsingAprilTags extends OpMode {
         aprilTagProcessor = vision.aprilTagProcessor();
         fps = (int) visionPortal.getFps();
         telemetry.addData("FPS", fps);
+        telemetry.update();
 
         field = PanelsField.INSTANCE.getField();
-        field.setOffsets(PanelsField.INSTANCE.getPresets().getDEFAULT_FTC());
+        field.setOffsets(FieldPresets.INSTANCE.getDEFAULT_FTC());
         field.update();
     }
 
