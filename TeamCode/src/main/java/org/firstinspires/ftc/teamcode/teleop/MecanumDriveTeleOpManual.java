@@ -62,11 +62,11 @@ public class MecanumDriveTeleOpManual extends OpMode {
             frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            useVelocity = true;
             frontLeftDriveTicksPerSecond = frontLeftDrive.getMotorType().getAchieveableMaxTicksPerSecond();
             frontRightDriveTicksPerSecond = frontRightDrive.getMotorType().getAchieveableMaxTicksPerSecond();
             backLeftDriveTicksPerSecond = backLeftDrive.getMotorType().getAchieveableMaxTicksPerSecond();
             backRightDriveTicksPerSecond = backRightDrive.getMotorType().getAchieveableMaxTicksPerSecond();
+            useVelocity = true;
         } else {
             telemetry.addLine("Not using hardware encoders");
             frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.config;
+package org.firstinspires.ftc.teamcode.config.mecanumdrive;
 
 import com.bylazar.telemetry.TelemetryManager.TelemetryWrapper;
 import com.seattlesolvers.solverslib.drivebase.MecanumDrive;

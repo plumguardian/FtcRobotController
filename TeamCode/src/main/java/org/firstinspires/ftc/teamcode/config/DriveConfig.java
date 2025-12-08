@@ -18,8 +18,9 @@ public class DriveConfig {
     @Configurable
     public static class EncoderConfigPanels {
         // Don't manually change values. Control it with panels.
-        public static boolean useVelocityControl = false;
-        public static boolean enableHardwareEncoders = true;
+        public static boolean useVelocityControl = false; // FIXME: seems to cause issues?
+        public static boolean enableHardwareEncoders = true; // TODO: it seems all this does it enable velocity, so idk if I need this
+        public static boolean useMotorExVelo = true;
     }
 
     @SuppressWarnings("UnusedReturnValue")

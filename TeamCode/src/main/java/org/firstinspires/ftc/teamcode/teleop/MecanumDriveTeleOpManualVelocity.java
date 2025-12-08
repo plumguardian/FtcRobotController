@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.MOTORS_ACTIVE;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.USE_PANELS_GAMEPAD;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.enableHardwareEncoders;
+import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useMotorExVelo;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useVelocityControl;
 
 import com.bylazar.gamepad.GamepadManager;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.config.DriveConfig;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
+import org.firstinspires.ftc.teamcode.config.mecanumdrive.MotorExVelo;
 
 @TeleOp(name = "Mecanum Drive (Manual Velocity)", group = TeamCode.GROUP_NAME)
 public class MecanumDriveTeleOpManualVelocity extends OpMode {
@@ -35,10 +37,17 @@ public class MecanumDriveTeleOpManualVelocity extends OpMode {
     @Override
     public void init() {
         final TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
-        frontLeftDrive = new MotorEx(hardwareMap, "frd", hardwareGetter.getMotorRpm("frd"));
-        frontRightDrive = new MotorEx(hardwareMap, "fld", hardwareGetter.getMotorRpm("fld"));
-        backLeftDrive = new MotorEx(hardwareMap, "bld", hardwareGetter.getMotorRpm("bld"));
-        backRightDrive = new MotorEx(hardwareMap, "brd", hardwareGetter.getMotorRpm("brd"));
+        if (useMotorExVelo) {
+            frontLeftDrive = new MotorExVelo(hardwareMap, "frd", hardwareGetter.getMotorRpm("frd"));
+            frontRightDrive = new MotorExVelo(hardwareMap, "fld", hardwareGetter.getMotorRpm("fld"));
+            backLeftDrive = new MotorExVelo(hardwareMap, "bld", hardwareGetter.getMotorRpm("bld"));
+            backRightDrive = new MotorExVelo(hardwareMap, "brd", hardwareGetter.getMotorRpm("brd"));
+        } else {
+            frontLeftDrive = new MotorEx(hardwareMap, "frd", hardwareGetter.getMotorRpm("frd"));
+            frontRightDrive = new MotorEx(hardwareMap, "fld", hardwareGetter.getMotorRpm("fld"));
+            backLeftDrive = new MotorEx(hardwareMap, "bld", hardwareGetter.getMotorRpm("bld"));
+            backRightDrive = new MotorEx(hardwareMap, "brd", hardwareGetter.getMotorRpm("brd"));
+        }
         // TODO: compare motor.getMotorType().getAchieveableMaxTicksPerSecond(); and gobildaType.getAchievableMaxTicksPerSecond();
         telemetry.addLine(backRightDrive.motor.getMotorType().getAchieveableMaxTicksPerSecond() + " | " + hardwareGetter.getMotorRpm("brd").getAchievableMaxTicksPerSecond()); // FIXME: delete
 
@@ -71,7 +80,7 @@ public class MecanumDriveTeleOpManualVelocity extends OpMode {
             backRightDrive.setRunMode(Motor.RunMode.RawPower);
         }
 
-        if (enableHardwareEncoders) {
+        if (enableHardwareEncoders || useMotorExVelo && useVelocityControl) {
             telemetry.addLine("Using hardware encoders");
             frontLeftDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontRightDrive.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
