@@ -17,6 +17,8 @@ import java.util.Map;
 public class TeamCode {
     /** The name of the group used for the OpModes */
     public static final String GROUP_NAME = "Robotics Team";
+    /** The fps for the camera (Logitech C270 HD Webcam) */
+    public static final int cameraFps = 30;
 
     @SuppressWarnings("unused")
     public record HardwareGetter(HardwareMap hardwareMap, @Nullable Telemetry telemetry) {
@@ -60,7 +62,10 @@ public class TeamCode {
         }
 
         public Vision getVision() {
-            final AprilTagProcessor aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
+            final AprilTagProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
+                    .setSuppressCalibrationWarnings(false)
+                    .setNumThreads(4)
+                    .build();
             // BuiltinCameraDirection.BACK can be used as a camera if it exists
             final VisionPortal visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
             return new Vision(aprilTagProcessor, visionPortal);

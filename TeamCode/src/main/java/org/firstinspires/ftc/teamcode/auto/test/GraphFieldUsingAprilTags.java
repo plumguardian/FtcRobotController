@@ -20,7 +20,6 @@ import java.util.List;
 public class GraphFieldUsingAprilTags extends OpMode {
     private VisionPortal visionPortal;
     private AprilTagProcessor aprilTagProcessor;
-    private int fps;
     private FieldManager field;
 
     @Override
@@ -34,9 +33,6 @@ public class GraphFieldUsingAprilTags extends OpMode {
             throw new RuntimeException("[GraphFieldUsingAprilTags] Wait for vision was interrupted", e);
         }
         aprilTagProcessor = vision.aprilTagProcessor();
-        fps = (int) visionPortal.getFps();
-        telemetry.addData("FPS", fps);
-        telemetry.update();
 
         field = PanelsField.INSTANCE.getField();
         field.setOffsets(FieldPresets.INSTANCE.getDEFAULT_FTC());
@@ -45,7 +41,7 @@ public class GraphFieldUsingAprilTags extends OpMode {
 
     @Override
     public void start() {
-        PanelsCameraStream.INSTANCE.startStream(visionPortal, fps);
+        PanelsCameraStream.INSTANCE.startStream(visionPortal, TeamCode.cameraFps);
         visionPortal = null;
     }
 

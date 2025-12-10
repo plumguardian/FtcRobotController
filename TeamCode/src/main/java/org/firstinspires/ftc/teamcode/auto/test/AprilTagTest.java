@@ -27,9 +27,7 @@ public class AprilTagTest extends LinearOpMode {
         final VisionPortal visionPortal = vision.visionPortal();
         hardwareGetter.waitForVision(visionPortal);
         final AprilTagProcessor aprilTagProcessor = vision.aprilTagProcessor();
-        final int fps = (int) visionPortal.getFps();
-        telemetry.addData("FPS", fps);
-        PanelsCameraStream.INSTANCE.startStream(visionPortal, fps);
+        PanelsCameraStream.INSTANCE.startStream(visionPortal, TeamCode.cameraFps);
 
         telemetry.addLine("Starting...");
         telemetry.update();
