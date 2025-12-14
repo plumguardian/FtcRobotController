@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.config.mecanumdrive;
 
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager.TelemetryWrapper;
 import com.seattlesolvers.solverslib.drivebase.MecanumDrive;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
@@ -15,6 +16,14 @@ public class MecanumDrivePanels extends MecanumDrive {
     public MecanumDrivePanels(final boolean autoInvert, final Motor frontLeft, final Motor frontRight, final Motor backLeft, final Motor backRight, final TelemetryWrapper panelsTelemetry) {
         super(autoInvert, frontLeft, frontRight, backLeft, backRight);
         this.panelsTelemetry = panelsTelemetry;
+    }
+
+    public MecanumDrivePanels(final Motor frontLeft, final Motor frontRight, final Motor backLeft, final Motor backRight) {
+        this(true, frontLeft, frontRight, backLeft, backRight, PanelsTelemetry.INSTANCE.getFtcTelemetry());
+    }
+
+    public MecanumDrivePanels(final boolean autoInvert, final Motor frontLeft, final Motor frontRight, final Motor backLeft, final Motor backRight) {
+        this(autoInvert, frontLeft, frontRight, backLeft, backRight, PanelsTelemetry.INSTANCE.getFtcTelemetry());
     }
 
     @Override

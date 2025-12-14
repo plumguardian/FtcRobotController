@@ -23,7 +23,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.config.DriveConfig;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
 import org.firstinspires.ftc.teamcode.config.mecanumdrive.MecanumDrivePanels;
-import org.firstinspires.ftc.teamcode.config.mecanumdrive.MotorExVelo;
 
 @TeleOp(name = "Mecanum Drive", group = TeamCode.GROUP_NAME)
 public class MecanumDriveTeleOp extends OpMode {
@@ -35,21 +34,11 @@ public class MecanumDriveTeleOp extends OpMode {
     @Override
     public void init() {
         final TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
-        final MotorEx frontLeftDrive;
-        final MotorEx frontRightDrive;
-        final MotorEx backLeftDrive;
-        final MotorEx backRightDrive;
-        if (useMotorExVelo) {
-            frontLeftDrive = new MotorExVelo(hardwareMap, "fld", hardwareGetter.getMotorRpm("fld"));
-            frontRightDrive = new MotorExVelo(hardwareMap, "frd", hardwareGetter.getMotorRpm("frd"));
-            backLeftDrive = new MotorExVelo(hardwareMap, "bld", hardwareGetter.getMotorRpm("bld"));
-            backRightDrive = new MotorExVelo(hardwareMap, "brd", hardwareGetter.getMotorRpm("brd"));
-        } else {
-            frontLeftDrive = new MotorEx(hardwareMap, "fld", hardwareGetter.getMotorRpm("fld"));
-            frontRightDrive = new MotorEx(hardwareMap, "frd", hardwareGetter.getMotorRpm("frd"));
-            backLeftDrive = new MotorEx(hardwareMap, "bld", hardwareGetter.getMotorRpm("bld"));
-            backRightDrive = new MotorEx(hardwareMap, "brd", hardwareGetter.getMotorRpm("brd"));
-        }
+        final TeamCode.HardwareGetter.Motors motors = hardwareGetter.getMotors();
+        final MotorEx frontLeftDrive = motors.frontLeft();
+        final MotorEx frontRightDrive = motors.frontRight();
+        final MotorEx backLeftDrive = motors.backLeft();
+        final MotorEx backRightDrive = motors.backRight();
         // TODO: compare motor.getMotorType().getAchieveableMaxTicksPerSecond(); and gobildaType.getAchievableMaxTicksPerSecond();
         telemetry.addLine(backRightDrive.motor.getMotorType().getAchieveableMaxTicksPerSecond() + " | " + hardwareGetter.getMotorRpm("brd").getAchievableMaxTicksPerSecond()); // FIXME: delete
 
@@ -100,6 +89,7 @@ public class MecanumDriveTeleOp extends OpMode {
 
         /*
         // TODO: Find
+        // Only needed for !useMotorExVelo && useVelocityControl
         frontLeftDrive.setVeloCoefficients();
         frontRightDrive.setVeloCoefficients();
         backLeftDrive.setVeloCoefficients();

@@ -6,9 +6,11 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
+import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.config.mecanumdrive.MotorExVelo;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -45,6 +47,8 @@ public class TeamCode {
 
         public record Vision(AprilTagProcessor aprilTagProcessor, VisionPortal visionPortal) {}
 
+        public record Motors(MotorEx frontLeft, MotorEx frontRight, MotorEx backLeft, MotorEx backRight) {}
+
         public IMU getIMU() {
             final IMU imu = hardwareMap.get(IMU.class, "imu");
 
@@ -62,12 +66,26 @@ public class TeamCode {
         }
 
         public Vision getVision() {
+            return getVision("Webcam 1");
+        }
+
+        public Vision getVision(final String webcamName) {
             final AprilTagProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
                     .setSuppressCalibrationWarnings(false)
                     .setNumThreads(4)
+                    .setDrawAxes(true)
+                    .setDrawCubeProjection(true)
+                    .setDrawTagID(true)
+                    .setDrawTagOutline(true)
                     .build();
+//            aprilTagProcessor.setPoseSolver(AprilTagProcessor.PoseSolver.);
+            aprilTagProcessor.setDecimation(2);
             // BuiltinCameraDirection.BACK can be used as a camera if it exists
-            final VisionPortal visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTagProcessor);
+            final VisionPortal visionPortal = new VisionPortal.Builder()
+                    .setCamera(hardwareMap.get(WebcamName.class, webcamName))
+                    .addProcessors(aprilTagProcessor)
+                    .setShowStatsOverlay(true)
+                    .build();
             return new Vision(aprilTagProcessor, visionPortal);
         }
 
@@ -86,6 +104,24 @@ public class TeamCode {
                     Thread.sleep(sleepMillis);
                 }
             }
+        }
+
+        public Motors getMotors() {
+            return getMotors(org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useMotorExVelo);
+        }
+
+        public Motors getMotors(boolean useMotorExVelo) {
+            return useMotorExVelo ? new Motors(
+                    new MotorExVelo(hardwareMap, "fld", this.getMotorRpm("fld")),
+                    new MotorExVelo(hardwareMap, "frd", this.getMotorRpm("frd")),
+                    new MotorExVelo(hardwareMap, "bld", this.getMotorRpm("bld")),
+                    new MotorExVelo(hardwareMap, "brd", this.getMotorRpm("brd"))
+            ) : new Motors(
+                    new MotorEx(hardwareMap, "fld", this.getMotorRpm("fld")),
+                    new MotorEx(hardwareMap, "frd", this.getMotorRpm("frd")),
+                    new MotorEx(hardwareMap, "bld", this.getMotorRpm("bld")),
+                    new MotorEx(hardwareMap, "brd", this.getMotorRpm("brd"))
+            );
         }
     }
 }
