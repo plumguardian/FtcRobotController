@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto.test;
 
 import com.bylazar.camerastream.PanelsCameraStream;
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.field.FieldManager;
 import com.bylazar.field.FieldPresets;
 import com.bylazar.field.PanelsField;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -22,15 +24,22 @@ public class GraphFieldUsingAprilTags extends OpMode {
     private AprilTagProcessor aprilTagProcessor;
     private FieldManager field;
 
+    @Configurable
+    private static class FieldGraphSettings {
+        public static AprilTagProcessor.PoseSolver poseSolver = AprilTagProcessor.PoseSolver.OPENCV_ITERATIVE;
+    }
+
     @Override
     public void init() {
         final TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         final TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
+        // TODO: calibrate camera using multiple software
         visionPortal = vision.visionPortal();
         try {
             hardwareGetter.waitForVision(visionPortal);
         } catch (InterruptedException e) {
-            throw new RuntimeException("[GraphFieldUsingAprilTags] Wait for vision was interrupted", e);
+            telemetry.addData("Wait for vision was interrupted", e.getMessage());
+            telemetry.update();
         }
         aprilTagProcessor = vision.aprilTagProcessor();
 
@@ -41,24 +50,29 @@ public class GraphFieldUsingAprilTags extends OpMode {
 
     @Override
     public void start() {
-        PanelsCameraStream.INSTANCE.startStream(visionPortal, TeamCode.cameraFps);
+        PanelsCameraStream.INSTANCE.startStream(visionPortal, TeamCode.CAMERA_FPS);
         visionPortal = null;
     }
 
     @Override
     public void loop() {
+        aprilTagProcessor.setPoseSolver(FieldGraphSettings.poseSolver);
         final List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
         if (detections.isEmpty())
             telemetry.addLine("No tags found");
         else
             for (final AprilTagDetection detection : detections) {
                 final Telemetry.Item item = telemetry.addData("id", detection.id);
-                if (detection.metadata != null)
+                if (detection.metadata != null) {
                     item.addData("name", detection.metadata.name);
-                item.addData("dist", Math.sqrt(Math.pow(detection.ftcPose.x, 2) + Math.pow(detection.ftcPose.y, 2) + Math.pow(detection.ftcPose.z, 2)));
+                    item.addData("dist", DistanceUnit.INCH.fromUnit(detection.metadata.distanceUnit, detection.ftcPose.range));
+                } else {
+                    item.addData("dist", detection.ftcPose.range);
+                }
 
                 final Position robotPose = detection.robotPose.getPosition();
-                field.moveCursor(robotPose.x, robotPose.y);
+                item.addData("unit", robotPose.unit.name());
+                field.moveCursor(DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.x), DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.y));
                 field.circle(2.0);
             }
         field.update();

@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanel
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.enableHardwareEncoders;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useMotorExVelo;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useVelocityControl;
+import static org.firstinspires.ftc.teamcode.config.TeamCode.MessageConfig.printMessage;
 
 import com.bylazar.gamepad.GamepadManager;
 import com.bylazar.gamepad.PanelsGamepad;
@@ -131,6 +132,8 @@ public class MecanumDriveTeleOp extends OpMode {
             telemetry.addLine("IMU reset");
             imu.resetYaw();
         }
+
+        printMessage(telemetry);
 
         final YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
         final double yaw = angles.getYaw(AngleUnit.DEGREES);

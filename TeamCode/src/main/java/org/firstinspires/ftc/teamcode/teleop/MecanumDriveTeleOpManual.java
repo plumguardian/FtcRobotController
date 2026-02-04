@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.MOTORS_ACTIVE;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.USE_PANELS_GAMEPAD;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.enableHardwareEncoders;
+import static org.firstinspires.ftc.teamcode.config.TeamCode.MessageConfig.printMessage;
 
 import com.bylazar.gamepad.GamepadManager;
 import com.bylazar.gamepad.PanelsGamepad;
@@ -76,6 +77,8 @@ public class MecanumDriveTeleOpManual extends OpMode {
             useVelocity = false;
         }
 
+        telemetry.update();
+
         imu = new TeamCode.HardwareGetter(hardwareMap, telemetry).getIMU();
 
         panelsTelemetry = PanelsTelemetry.INSTANCE.getFtcTelemetry();
@@ -103,6 +106,9 @@ public class MecanumDriveTeleOpManual extends OpMode {
             telemetry.addLine("IMU reset");
             imu.resetYaw();
         }
+
+        printMessage(telemetry);
+
         if (gamepad.left_bumper)
             drive(-gamepad.left_stick_y, gamepad.left_stick_x, gamepad.right_stick_x);
         else

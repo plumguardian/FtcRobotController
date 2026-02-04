@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.config;
 
+import android.util.Size;
+
 import androidx.annotation.Nullable;
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.ftcrobotcontroller.BuildConfig;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -20,7 +24,17 @@ public class TeamCode {
     /** The name of the group used for the OpModes */
     public static final String GROUP_NAME = "Robotics Team";
     /** The fps for the camera (Logitech C270 HD Webcam) */
-    public static final int cameraFps = 30;
+    public static final int CAMERA_FPS = 30;
+
+    @Configurable
+    public static class MessageConfig {
+        public static String message = "";
+        public static int blankLines = 2;
+        public static void printMessage(Telemetry telemetry) {
+            if (!message.isEmpty() && blankLines >= 0)
+                telemetry.addLine("\n".repeat(blankLines) + message.replace("\\n", "\n"));
+        }
+    }
 
     @SuppressWarnings("unused")
     public record HardwareGetter(HardwareMap hardwareMap, @Nullable Telemetry telemetry) {
@@ -73,10 +87,10 @@ public class TeamCode {
             final AprilTagProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
                     .setSuppressCalibrationWarnings(false)
                     .setNumThreads(4)
-                    .setDrawAxes(true)
-                    .setDrawCubeProjection(true)
-                    .setDrawTagID(true)
-                    .setDrawTagOutline(true)
+                    .setDrawAxes(BuildConfig.DEBUG)
+                    .setDrawCubeProjection(BuildConfig.DEBUG)
+                    .setDrawTagID(BuildConfig.DEBUG)
+                    .setDrawTagOutline(BuildConfig.DEBUG)
                     .build();
 //            aprilTagProcessor.setPoseSolver(AprilTagProcessor.PoseSolver.);
             aprilTagProcessor.setDecimation(2);
@@ -84,7 +98,9 @@ public class TeamCode {
             final VisionPortal visionPortal = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, webcamName))
                     .addProcessors(aprilTagProcessor)
-                    .setShowStatsOverlay(true)
+                    .setShowStatsOverlay(BuildConfig.DEBUG)
+                    .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                    .setCameraResolution(new Size(640, 480))
                     .build();
             return new Vision(aprilTagProcessor, visionPortal);
         }

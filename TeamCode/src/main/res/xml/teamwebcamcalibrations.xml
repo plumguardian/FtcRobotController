@@ -156,6 +156,16 @@
             />
     </Camera> -->
 
+    <!-- Logitech HD Webcam C270, by plumguardian, 2026.01.20 using math from the logitech specs (probably wrong) -->
+    <!--<Camera vid="Logitech" pid="0x0825">
+        <Calibration
+            size="640 480"
+            focalLength="554, 554"
+            principalPoint="320, 240"
+            distortionCoefficients="-0.0449369, 1.17277, 0, 0, -3.63244, 0, 0, 0"
+            />
+    </Camera> -->
+
     <!-- ======================================================================================= -->
 
 </Calibrations>

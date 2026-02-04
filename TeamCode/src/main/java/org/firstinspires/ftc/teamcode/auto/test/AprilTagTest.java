@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -27,7 +28,7 @@ public class AprilTagTest extends LinearOpMode {
         final VisionPortal visionPortal = vision.visionPortal();
         hardwareGetter.waitForVision(visionPortal);
         final AprilTagProcessor aprilTagProcessor = vision.aprilTagProcessor();
-        PanelsCameraStream.INSTANCE.startStream(visionPortal, TeamCode.cameraFps);
+        PanelsCameraStream.INSTANCE.startStream(visionPortal, TeamCode.CAMERA_FPS);
 
         telemetry.addLine("Starting...");
         telemetry.update();
@@ -39,9 +40,12 @@ public class AprilTagTest extends LinearOpMode {
             else
                 for (final AprilTagDetection detection : detections) {
                     final Telemetry.Item item = telemetry.addData("id", detection.id);
-                    if (detection.metadata != null)
+                    if (detection.metadata != null) {
                         item.addData("name", detection.metadata.name);
-                    item.addData("dist", Math.sqrt(Math.pow(detection.ftcPose.x, 2) + Math.pow(detection.ftcPose.y, 2) + Math.pow(detection.ftcPose.z, 2)));
+                        item.addData("dist", DistanceUnit.INCH.fromUnit(detection.metadata.distanceUnit, detection.ftcPose.range));
+                    } else {
+                        item.addData("dist", detection.ftcPose.range);
+                    }
                 }
 
             telemetry.update();
