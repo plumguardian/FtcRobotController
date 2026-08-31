@@ -19,7 +19,7 @@ import java.util.regex.Pattern
 
 android {
 
-    compileSdkVersion 30
+    compileSdk 35
 
     signingConfigs {
         release {
@@ -48,7 +48,7 @@ android {
     defaultConfig {
         signingConfig signingConfigs.debug
         applicationId 'com.qualcomm.ftcrobotcontroller'
-        minSdkVersion 24
+        minSdkVersion 25
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 28
 
@@ -100,14 +100,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_25
+        targetCompatibility JavaVersion.VERSION_25
     }
 
     packagingOptions {
         pickFirst '**/*.so'
     }
-    ndkVersion '21.3.6528147'
+    //ndkVersion '21.3.6528147'
 }
 
 repositories {
