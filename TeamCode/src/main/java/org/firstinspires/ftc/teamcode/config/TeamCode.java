@@ -42,7 +42,9 @@ public class TeamCode {
                 "fld", Motor.GoBILDA.RPM_312,
                 "frd", Motor.GoBILDA.RPM_312,
                 "bld", Motor.GoBILDA.RPM_312,
-                "brd", Motor.GoBILDA.RPM_312
+                "brd", Motor.GoBILDA.RPM_312,
+                "il", Motor.GoBILDA.BARE,
+                "ir", Motor.GoBILDA.BARE
         );
 
         public Motor.GoBILDA getMotorRpm(final String name) {
@@ -116,9 +118,8 @@ public class TeamCode {
                     Thread.sleep(sleepMillis);
                 }
             } else {
-                while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+                while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)
                     Thread.sleep(sleepMillis);
-                }
             }
         }
 

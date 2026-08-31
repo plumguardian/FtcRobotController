@@ -5,12 +5,14 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.field.FieldManager;
 import com.bylazar.field.FieldPresets;
 import com.bylazar.field.PanelsField;
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.config.DualTelemetry;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -65,8 +67,9 @@ public class GraphFieldUsingAprilTags extends OpMode {
                 final Telemetry.Item item = telemetry.addData("id", detection.id);
                 if (detection.metadata != null) {
                     item.addData("name", detection.metadata.name);
-                    item.addData("dist", DistanceUnit.INCH.fromUnit(detection.metadata.distanceUnit, detection.ftcPose.range));
-                } else {
+                    if (detection.ftcPose != null)
+                        item.addData("dist", DistanceUnit.INCH.fromUnit(detection.metadata.distanceUnit, detection.ftcPose.range));
+                } else if (detection.ftcPose != null) {
                     item.addData("dist", detection.ftcPose.range);
                 }
 
