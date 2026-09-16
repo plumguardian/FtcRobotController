@@ -1,5 +1,7 @@
-/* TODO: Update to FTCRobotController v12
 package org.firstinspires.ftc.teamcode.auto;
+
+import static com.pedropathing.api.Paths.line;
+import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 import com.bylazar.camerastream.PanelsCameraStream;
 import com.bylazar.configurables.annotations.Configurable;
@@ -9,23 +11,14 @@ import com.bylazar.field.FieldPresets;
 import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
 import com.bylazar.telemetry.PanelsTelemetry;
+import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.follower.FollowerConstants;
-import com.pedropathing.ftc.FTCCoordinates;
-import com.pedropathing.ftc.FollowerBuilder;
-import com.pedropathing.ftc.drivetrains.MecanumConstants;
-import com.pedropathing.ftc.localization.Encoder;
-import com.pedropathing.ftc.localization.constants.DriveEncoderConstants;
-import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.geometry.CoordinateSystem;
-import com.pedropathing.geometry.PedroCoordinates;
-import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.PathChain;
-import com.pedropathing.paths.PathConstraints;
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -33,9 +26,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.config.Constants;
 import org.firstinspires.ftc.teamcode.config.DualTelemetry;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -44,18 +39,6 @@ import java.util.List;
 
 @Autonomous(name = "Go To April Tag", group = TeamCode.GROUP_NAME)
 public class GoToApril extends OpMode {
-    @SuppressWarnings("unused")
-    private enum Coords {
-        FTC(FTCCoordinates.INSTANCE),
-        PEDRO(PedroCoordinates.INSTANCE);
-
-        public final CoordinateSystem system;
-
-        Coords(CoordinateSystem system) {
-            this.system = system;
-        }
-    }
-
     @SuppressWarnings("unused")
     private enum Field {
         DEFAULT_FTC(FieldPresets.INSTANCE.getDEFAULT_FTC()),
@@ -73,21 +56,17 @@ public class GoToApril extends OpMode {
     @Configurable
     private static class GoToAprilTestConfig {
         public static int stopCount = 1000;
-        public static Coords start = Coords.FTC;
-        public static Coords end = Coords.PEDRO;
         public static DistanceUnit unit = DistanceUnit.INCH;
         public static Field fieldType = Field.DEFAULT_FTC;
-        public static boolean yawDegrees = true;
         public static double standOff = 1.0;
     }
 
     private AprilTagProcessor aprilTagProcessor;
     private Follower follower;
-    private FollowPathCommand pathCommand;
+    private Command command;
+    private PoseFactory poseFactory;
     private FieldManager field;
-    private final List<AprilTagDetection> detections = new ArrayList<>(GoToAprilTestConfig.stopCount);
-    private double tagPoseX = 0.0;
-    private double tagPoseY = 0.0;
+    private final List<AprilTagClusterDetection> detections = new ArrayList<>(GoToAprilTestConfig.stopCount);
     private static final Style redStyle = new Style(
             "",
             "#FF0000",
@@ -103,6 +82,8 @@ public class GoToApril extends OpMode {
 
     @Override
     public void init() {
+        Scheduler.reset();
+
         final TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         final TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
 
@@ -114,39 +95,8 @@ public class GoToApril extends OpMode {
             telemetry.update();
         }
         aprilTagProcessor = vision.aprilTagProcessor();
-
-        final FollowerConstants followerConstants = new FollowerConstants();
-        final MecanumConstants mecanumConstants = new MecanumConstants()
-                .maxPower(1)
-                .leftFrontMotorName("fld")
-                .leftFrontMotorDirection(DcMotor.Direction.REVERSE)
-                .leftRearMotorName("bld")
-                .leftRearMotorDirection(DcMotor.Direction.REVERSE)
-                .rightFrontMotorName("frd")
-                .rightFrontMotorDirection(DcMotor.Direction.FORWARD)
-                .rightRearMotorName("brd")
-                .rightRearMotorDirection(DcMotor.Direction.FORWARD);
-        final PathConstraints pathConstraints = new PathConstraints(0.995, 100.0);
-//        final double cpr = hardwareMap.get(DcMotor.class, "fld").getMotorType().getTicksPerRev(); // TODO: should i use a different method to get the cpr
-        final DriveEncoderConstants driveEncoderConstants = new DriveEncoderConstants() // TODO: if we have odometry pods, use that plus IMU. Maybe use SolversLib's mecanum odometry
-                .leftFrontMotorName("fld")
-                .leftFrontEncoderDirection(Encoder.REVERSE) // FIXME: test this and make sure that all ticks go up when going forward. If not, make it reverse
-                .leftRearMotorName("bld")
-                .leftRearEncoderDirection(Encoder.REVERSE) // FIXME: test this and make sure that all ticks go up when going forward. If not, make it reverse
-                .rightFrontMotorName("frd")
-                .rightFrontEncoderDirection(Encoder.FORWARD) // FIXME: test this and make sure that all ticks go up when going forward. If not, make it reverse
-                .rightRearMotorName("brd")
-                .rightRearEncoderDirection(Encoder.FORWARD) // FIXME: test this and make sure that all ticks go up when going forward. If not, make it reverse
-//                .forwardTicksToInches(-0.1) //(Math.PI * 3.75D) / (cpr * (1D+(46D/17D)) * (1D+(46D/11D)))) // TODO: check
-//                .strafeTicksToInches(0.0) //2D * Math.PI / 2816.5D) // TODO: check
-//                .turnTicksToInches(0.0) // TODO: find
-                .robotLength(8.5) // TODO: find
-                .robotWidth(11.0); // TODO: find
-        follower = new FollowerBuilder(followerConstants, hardwareMap)
-                .mecanumDrivetrain(mecanumConstants)
-                .pathConstraints(pathConstraints)
-                .driveEncoderLocalizer(driveEncoderConstants)
-                .build();
+        follower = Constants.create(hardwareMap);
+        poseFactory = PoseFactory.radians();
 
         field = PanelsField.INSTANCE.getField();
         field.setOffsets(GoToAprilTestConfig.fieldType.field);
@@ -155,7 +105,8 @@ public class GoToApril extends OpMode {
         dualTelemetry = new DualTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 
         PanelsCameraStream.INSTANCE.startStream(visionPortal, TeamCode.CAMERA_FPS);
-        pathCommand = null;
+        command = null;
+        moving = false;
     }
 
     @Override
@@ -170,7 +121,12 @@ public class GoToApril extends OpMode {
         }
 
         field.setStyle(redStyle);
-        for (AprilTagDetection detection : newDetections) {
+        for (AprilTagDetection rawDetection : newDetections) {
+            if (!(rawDetection instanceof AprilTagClusterDetection detection)) {
+                telemetry.addData("Unexpected april tag class", rawDetection.getClass().getSimpleName());
+                continue;
+            }
+
             if (detection.metadata == null)
                 continue;
 
@@ -188,39 +144,21 @@ public class GoToApril extends OpMode {
 
     @Override
     public void loop() {
-        if (pathCommand != null && !pathCommand.isFinished()) {
-            follower.update();
-
-            field.moveCursor(tagPoseX, tagPoseY);
-            field.setStyle(redStyle);
-            field.circle(2.0);
-
-            final Pose robotPose = follower.poseTracker.getPose().getAsCoordinateSystem(GoToAprilTestConfig.start.system);
-            final double robox = robotPose.getX();
-            final double roboy = robotPose.getY();
-            field.moveCursor(robox, roboy);
-            field.setStyle(blueStyle);
-            field.circle(2.0);
-
-            field.update();
-
-            dualTelemetry.addData("Tag Pose", tagPoseX + ", " + tagPoseY);
-            dualTelemetry.addData("Robot Pose", robox + ", " + roboy);
-        }
-
         if (moving) {
-            dualTelemetry.update();
+            follower.update();
+            Scheduler.execute();
             return;
         }
 
         final List<AprilTagDetection> newdetections = aprilTagProcessor.getDetections();
         if (newdetections.isEmpty())
             dualTelemetry.addLine("No tag found");
-            // Thread.sleep(50); FIXME: may not work inside a normal OpMode
+            // Thread.sleep(50); // FIXME: may not work inside a normal OpMode
         else
-            for (AprilTagDetection detection : newdetections)
-                if (detection.metadata != null)
-                    detections.add(detection);  // FIXME: this accepts all tag IDs
+            for (AprilTagDetection rawDetection : newdetections)
+                if (rawDetection instanceof AprilTagClusterDetection detection)
+                    if (detection.metadata != null)
+                        detections.add(detection);  // FIXME: this accepts all tag IDs
 
         if (detections.size() < GoToAprilTestConfig.stopCount) {
             dualTelemetry.update();
@@ -235,7 +173,7 @@ public class GoToApril extends OpMode {
         double headingCos = 0.0;
         double pointAtTagSin = 0.0;
         double pointAtTagCos = 0.0;
-        for (AprilTagDetection detection : detections) {
+        for (AprilTagClusterDetection detection : detections) {
             final Position robotpos = detection.robotPose.getPosition();
             roboposx += GoToAprilTestConfig.unit.fromUnit(robotpos.unit, robotpos.x);
             roboposy += GoToAprilTestConfig.unit.fromUnit(robotpos.unit, robotpos.y);
@@ -266,25 +204,17 @@ public class GoToApril extends OpMode {
         tagposx -= GoToAprilTestConfig.standOff * (pointAtTagCos / mag);
         tagposy -= GoToAprilTestConfig.standOff * (pointAtTagSin / mag);
         double heading = Math.atan2(headingSin, headingCos);
-        if (GoToAprilTestConfig.yawDegrees) {
-            // TODO: make vars final after this is removed
-            pointAtTag = Math.toDegrees(pointAtTag);
-            heading = Math.toDegrees(heading);
-        }
 
-        tagPoseX = tagposx;
-        tagPoseY = tagposy;
+        // TODO: convert from ftc to pedro units
+        final Pose start = poseFactory.of(roboposx, roboposy, heading);
+        final Pose end = poseFactory.of(tagposx, tagposy, pointAtTag);
 
-        follower.setStartingPose(new Pose(roboposx, roboposy, heading, GoToAprilTestConfig.start.system).getAsCoordinateSystem(GoToAprilTestConfig.end.system)); // FIXME: may be wrong system
-        follower.update();
+        follower.setPose(start);
+        final Path path = line(start, end).linear(start, end);
 
-        final Pose endPose = new Pose(tagposx, tagposy, pointAtTag, GoToAprilTestConfig.start.system).getAsCoordinateSystem(GoToAprilTestConfig.end.system); // FIXME: may be wrong system
-        final PathChain path = follower.pathBuilder()
-                .addPath(new BezierLine(follower.getPose(), endPose))
-//                    .setLinearHeadingInterpolation(follower.getHeading(), endPose.getHeading()) // TODO: is this needed?
-                .build();
-        pathCommand = new FollowPathCommand(follower, path);
-        pathCommand.schedule(true);
+        command = follow(follower, path);
+        Scheduler.schedule(command);
+
         moving = true;
 
         dualTelemetry.update();
@@ -292,11 +222,10 @@ public class GoToApril extends OpMode {
 
     @Override
     public void stop() {
-        if (pathCommand != null) {
-            dualTelemetry.addData("finished", pathCommand.isFinished());
-            pathCommand.cancel();
+        if (command != null) {
+            dualTelemetry.addData("Running", Scheduler.isRunning(command));
+            command.cancel();
         }
         PanelsCameraStream.INSTANCE.stopStream();
     }
 }
-*/
