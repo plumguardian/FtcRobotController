@@ -61,29 +61,42 @@ public class GraphFieldUsingAprilTags extends OpMode {
     public void loop() {
         aprilTagProcessor.setPoseSolver(FieldGraphSettings.poseSolver);
         final List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
-        if (detections.isEmpty())
+        if (detections.isEmpty()) {
             telemetry.addLine("No tags found");
-        else
-            for (final AprilTagDetection rawDetection : detections) {
-                if (!(rawDetection instanceof AprilTagClusterDetection detection)) {
-                    telemetry.addData("Unexpected april tag class", rawDetection.getClass().getSimpleName());
-                    continue;
-                }
+            field.update();
+            return;
+        }
 
-                final Telemetry.Item item = telemetry.addData("distance unit", detection.distanceUnit);
-                if (detection.metadata != null) {
-                    item.addData("name", detection.metadata.name);
-                    if (detection.ftcPose != null)
-                        item.addData("dist", DistanceUnit.INCH.fromUnit(detection.metadata.distanceUnit, detection.ftcPose.range));
-                } else if (detection.ftcPose != null) {
-                    item.addData("dist", detection.ftcPose.range);
-                }
-
-                final Position robotPose = detection.robotPose.getPosition();
-                item.addData("unit", robotPose.unit.name());
-                field.moveCursor(DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.x), DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.y));
-                field.circle(2.0);
+        for (final AprilTagDetection rawDetection : detections) {
+            if (!(rawDetection instanceof AprilTagClusterDetection detection)) {
+                telemetry.addData("Unexpected april tag class", rawDetection.getClass().getSimpleName());
+                continue;
             }
+
+            final Telemetry.Item item = telemetry.addData("Frame time", detection.frameAcquisitionNanoTime);
+            item.addData("cluster %", detection.percentClusterFound);
+            item.addData("robot pose on field", detection.robotPose); // Should be null for BIOBUZZ hives
+            item.addData("tag bearing from robot", detection.ftcPose.bearing);
+            // Lower cluster - 36.901 in
+            // Upper cluster - 50.867 in
+            // TODO: use height to find which cluster is down for our alliance
+            final double cameraHeight = 0.0; // TODO: measure
+            item.addData("Height", detection.ftcPose.z + cameraHeight);
+            item.addData("Unit", detection.distanceUnit.name());
+            item.addData("robotPose unit", detection.robotPose.getPosition().unit.name());
+            if (detection.metadata != null) {
+                item.addData("name", detection.metadata.name);
+                item.addData("Metadata unit", detection.metadata.distanceUnit.name());
+                item.addData("dist", DistanceUnit.INCH.fromUnit(detection.metadata.distanceUnit, detection.ftcPose.range));
+            } else {
+                item.addData("dist", detection.ftcPose.range);
+            }
+
+            final Position robotPose = detection.robotPose.getPosition();
+            field.moveCursor(DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.x), DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.y));
+            field.circle(2.0);
+        }
+
         field.update();
     }
 
