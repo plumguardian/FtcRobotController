@@ -13,7 +13,6 @@ import com.bylazar.field.Style;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
@@ -63,7 +62,6 @@ public class GoToApril extends OpMode {
 
     private AprilTagProcessor aprilTagProcessor;
     private Follower follower;
-    private Command command;
     private PoseFactory poseFactory;
     private FieldManager field;
     private final List<AprilTagClusterDetection> detections = new ArrayList<>(GoToAprilTestConfig.stopCount);
@@ -105,7 +103,6 @@ public class GoToApril extends OpMode {
         dualTelemetry = new DualTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 
         PanelsCameraStream.INSTANCE.startStream(visionPortal, TeamCode.CAMERA_FPS);
-        command = null;
         moving = false;
     }
 
@@ -192,12 +189,12 @@ public class GoToApril extends OpMode {
             pointAtTagSin += Math.sin(o);
             pointAtTagCos += Math.cos(o);
         }
-        final int detectsize = detections.size();
+        final int detectSize = detections.size();
         detections.clear();
-        roboposx /= detectsize;
-        roboposy /= detectsize;
-        tagposx /= detectsize;
-        tagposy /= detectsize;
+        roboposx /= detectSize;
+        roboposy /= detectSize;
+        tagposx /= detectSize;
+        tagposy /= detectSize;
 
         double pointAtTag = Math.atan2(pointAtTagSin, pointAtTagCos);
         final double mag = Math.hypot(pointAtTagCos, pointAtTagSin);
@@ -205,15 +202,14 @@ public class GoToApril extends OpMode {
         tagposy -= GoToAprilTestConfig.standOff * (pointAtTagSin / mag);
         double heading = Math.atan2(headingSin, headingCos);
 
-        // TODO: convert from ftc to pedro units
-        final Pose start = poseFactory.of(roboposx, roboposy, heading);
-        final Pose end = poseFactory.of(tagposx, tagposy, pointAtTag);
+        final Pose start = poseFactory.of(roboposy + 72, 72 - roboposx, heading - Math.PI / 2);
+        final Pose end = poseFactory.of(tagposy + 72, 72 - tagposx, pointAtTag - Math.PI / 2);
 
         follower.setPose(start);
+        follower.update();
         final Path path = line(start, end).linear(start, end);
 
-        command = follow(follower, path);
-        Scheduler.schedule(command);
+        Scheduler.schedule(follow(follower, path));
 
         moving = true;
 
@@ -222,10 +218,8 @@ public class GoToApril extends OpMode {
 
     @Override
     public void stop() {
-        if (command != null) {
-            dualTelemetry.addData("Running", Scheduler.isRunning(command));
-            command.cancel();
-        }
+        dualTelemetry.addData("Mode", follower.mode().name());
+        follower.stop();
         PanelsCameraStream.INSTANCE.stopStream();
     }
 }
