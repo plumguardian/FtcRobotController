@@ -14,6 +14,9 @@ import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.config.mecanumdrive.MotorExVelo;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -21,8 +24,6 @@ import java.util.Map;
 
 @SuppressWarnings("unused")
 public class TeamCode {
-    /** The name of the group used for the OpModes */
-    public static final String GROUP_NAME = "Robotics Team";
     /** The fps for the camera (Logitech C270 HD Webcam) */
     public static final int CAMERA_FPS = 30;
 
@@ -38,6 +39,10 @@ public class TeamCode {
 
     public record HardwareGetter(HardwareMap hardwareMap, @Nullable Telemetry telemetry) {
         public final static Map<String, Motor.GoBILDA> motorRpmMap = Map.of(
+                "fld", Motor.GoBILDA.RPM_312,
+                "frd", Motor.GoBILDA.RPM_312,
+                "bld", Motor.GoBILDA.RPM_312,
+                "brd", Motor.GoBILDA.RPM_312
         );
 
         public Motor.GoBILDA getMotorRpm(final String name) {
@@ -86,6 +91,8 @@ public class TeamCode {
                     .setDrawCubeProjection(BuildConfig.DEBUG)
                     .setDrawTagID(BuildConfig.DEBUG)
                     .setDrawTagOutline(BuildConfig.DEBUG)
+//                    .setCameraPose()
+                    .setOutputUnits(DistanceUnit.INCH, AngleUnit.RADIANS)
                     .build();
 //            aprilTagProcessor.setPoseSolver(AprilTagProcessor.PoseSolver.);
             aprilTagProcessor.setDecimation(2);
@@ -114,6 +121,24 @@ public class TeamCode {
                 while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)
                     Thread.sleep(sleepMillis);
             }
+        }
+
+        public Motors getMotors() {
+            return getMotors(org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useMotorExVelo);
+        }
+
+        public Motors getMotors(boolean useMotorExVelo) {
+            return useMotorExVelo ? new Motors(
+                    new MotorExVelo(hardwareMap, "fld", this.getMotorRpm("fld")),
+                    new MotorExVelo(hardwareMap, "frd", this.getMotorRpm("frd")),
+                    new MotorExVelo(hardwareMap, "bld", this.getMotorRpm("bld")),
+                    new MotorExVelo(hardwareMap, "brd", this.getMotorRpm("brd"))
+            ) : new Motors(
+                    new MotorEx(hardwareMap, "fld", this.getMotorRpm("fld")),
+                    new MotorEx(hardwareMap, "frd", this.getMotorRpm("frd")),
+                    new MotorEx(hardwareMap, "bld", this.getMotorRpm("bld")),
+                    new MotorEx(hardwareMap, "brd", this.getMotorRpm("brd"))
+            );
         }
     }
 }

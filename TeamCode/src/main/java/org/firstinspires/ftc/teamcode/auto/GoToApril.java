@@ -36,7 +36,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Go To April Tag", group = TeamCode.GROUP_NAME)
+@Autonomous(name = "Go To April Tag", group = "Auto")
 public class GoToApril extends OpMode {
     @SuppressWarnings("unused")
     private enum Field {

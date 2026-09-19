@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.auto.test;
+package org.firstinspires.ftc.teamcode.utility;
 
 import com.bylazar.telemetry.PanelsTelemetry;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
@@ -10,7 +10,7 @@ import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import org.firstinspires.ftc.teamcode.config.DualTelemetry;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
 
-@Autonomous(name = "Print Debug", group = TeamCode.GROUP_NAME)
+@Utility(name = "Print Debug", description = "Logs various info about the robot")
 public class PrintDebug extends LinearOpMode {
     @Override
     public void runOpMode() {

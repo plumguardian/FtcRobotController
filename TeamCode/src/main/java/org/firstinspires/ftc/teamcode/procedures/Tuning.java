@@ -18,6 +18,8 @@ public class Tuning {
         return new MecanumTuner();
     }
 
+    @NonNull
+    @Contract(" -> new")
     @Tuner
     public static Procedure foresightTuner() {
         return new ForesightTuner(

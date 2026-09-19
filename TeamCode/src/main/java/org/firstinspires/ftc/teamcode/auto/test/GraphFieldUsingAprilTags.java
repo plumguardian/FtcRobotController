@@ -21,7 +21,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-@Autonomous(name = "Graph Field", group = TeamCode.GROUP_NAME)
+@Autonomous(name = "Graph Field", group = "Testing")
 public class GraphFieldUsingAprilTags extends OpMode {
     private VisionPortal visionPortal;
     private AprilTagProcessor aprilTagProcessor;
