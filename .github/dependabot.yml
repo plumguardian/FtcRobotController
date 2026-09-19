@@ -2,10 +2,12 @@ version: 2
 updates:
   - package-ecosystem: "gradle"
     directory: "/"
+    target-branch: "BIOBUZZ-2026"
     schedule:
       interval: "weekly"
 
   - package-ecosystem: "github-actions"
     directory: "/"
+    target-branch: "BIOBUZZ-2026"
     schedule:
       interval: "weekly"
