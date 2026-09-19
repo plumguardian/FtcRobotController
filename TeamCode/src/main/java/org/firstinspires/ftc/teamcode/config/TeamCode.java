@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.config;
 
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -19,8 +20,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.config.mecanumdrive.MotorExVelo;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.jetbrains.annotations.Contract;
 
 import java.util.Map;
+import java.util.function.Function;
 
 @SuppressWarnings("unused")
 public class TeamCode {
@@ -63,6 +66,7 @@ public class TeamCode {
 
         public record Motors(MotorEx frontLeft, MotorEx frontRight, MotorEx backLeft, MotorEx backRight) {}
 
+        @NonNull
         public IMU getIMU() {
             final IMU imu = hardwareMap.get(IMU.class, "imu");
 
@@ -79,18 +83,26 @@ public class TeamCode {
             return imu;
         }
 
+        @NonNull
+        @Contract(" -> new")
         public Vision getVision() {
             return getVision("Webcam 1");
         }
 
+        @NonNull
+        @Contract("_ -> new")
         public Vision getVision(final String webcamName) {
             return getVision(webcamName, AngleUnit.RADIANS);
         }
 
+        @NonNull
+        @Contract("_ -> new")
         public Vision getVision(final AngleUnit angleUnit) {
             return getVision("Webcam 1", angleUnit);
         }
 
+        @NonNull
+        @Contract("_, _ -> new")
         public Vision getVision(final String webcamName, final AngleUnit angleUnit) {
             final AprilTagProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
                     .setSuppressCalibrationWarnings(false)
@@ -132,21 +144,24 @@ public class TeamCode {
             }
         }
 
+        @NonNull
+        @Contract(" -> new")
         public Motors getMotors() {
             return getMotors(org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useMotorExVelo);
         }
 
+        @NonNull
+        @Contract("_ -> new")
         public Motors getMotors(boolean useMotorExVelo) {
-            return useMotorExVelo ? new Motors(
-                    new MotorExVelo(hardwareMap, "fld", this.getMotorRpm("fld")),
-                    new MotorExVelo(hardwareMap, "frd", this.getMotorRpm("frd")),
-                    new MotorExVelo(hardwareMap, "bld", this.getMotorRpm("bld")),
-                    new MotorExVelo(hardwareMap, "brd", this.getMotorRpm("brd"))
-            ) : new Motors(
-                    new MotorEx(hardwareMap, "fld", this.getMotorRpm("fld")),
-                    new MotorEx(hardwareMap, "frd", this.getMotorRpm("frd")),
-                    new MotorEx(hardwareMap, "bld", this.getMotorRpm("bld")),
-                    new MotorEx(hardwareMap, "brd", this.getMotorRpm("brd"))
+            final Function<String, MotorEx> motor = useMotorExVelo
+                    ? name -> new MotorExVelo(hardwareMap, name, getMotorRpm(name))
+                    : name -> new MotorEx(hardwareMap, name, getMotorRpm(name));
+
+            return new Motors(
+                    motor.apply("fld"),
+                    motor.apply("frd"),
+                    motor.apply("bld"),
+                    motor.apply("brd")
             );
         }
     }

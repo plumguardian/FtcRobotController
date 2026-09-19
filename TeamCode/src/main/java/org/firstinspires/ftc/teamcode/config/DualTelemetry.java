@@ -5,33 +5,20 @@ import com.bylazar.telemetry.TelemetryManager;
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@AllArgsConstructor
 @SuppressWarnings({"ConstantValue", "unused"})
 public class DualTelemetry implements Telemetry {
-    private final TelemetryManager.TelemetryWrapper panelsTelemetry;
+    @Getter
     private final Telemetry telemetry;
+    @Getter
+    private final TelemetryManager.TelemetryWrapper panelsTelemetry;
+    @Getter
     private boolean returnPanels = false;
-
-    public DualTelemetry(Telemetry telemetry, TelemetryManager.TelemetryWrapper panelsTelemetry) {
-        this.telemetry = telemetry;
-        this.panelsTelemetry = panelsTelemetry;
-    }
-
-    public DualTelemetry(Telemetry telemetry, TelemetryManager.TelemetryWrapper panelsTelemetry, boolean returnPanels) {
-        this(telemetry, panelsTelemetry);
-        this.returnPanels = returnPanels;
-    }
-
-    public TelemetryManager.TelemetryWrapper getPanelsTelemetry() {
-        return panelsTelemetry;
-    }
-
-    public Telemetry getTelemetry() {
-        return telemetry;
-    }
-
-    public boolean getReturnPanels() {
-        return returnPanels;
-    }
 
     public DualTelemetry setReturnPanels(boolean returnPanels) {
         this.returnPanels = returnPanels;

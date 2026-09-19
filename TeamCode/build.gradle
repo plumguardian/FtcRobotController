@@ -1,3 +1,9 @@
+import io.freefair.gradle.plugins.lombok.tasks.Delombok
+
+plugins {
+    id 'io.freefair.android-lombok' version '9.0.0-alpha04' apply false
+}
+
 apply plugin: 'com.android.application'
 
 //
@@ -11,6 +17,14 @@ apply plugin: 'com.android.application'
 // before doing so.
 
 // Custom definitions may go here
+apply plugin: 'io.freefair.android-lombok'
+
+tasks.withType(Delombok).configureEach {
+    classpath.from(file(
+            "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+    ))
+    target = file(layout.buildDirectory.dir("delombok"))
+}
 
 // Include common definitions from above.
 apply from: '../build.common.gradle'
