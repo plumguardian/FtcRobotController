@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.config.TeamCode;
 @Utility(name = "Print Debug", description = "Logs various info about the robot")
 public class PrintDebug extends LinearOpMode {
     @Configurable
-    public static class PrintDebugTest {
+    protected static class PrintDebugTest {
         public static final String saved = "<font color='#e37c07'>";
         public static final String detected = "<font color='#09e087'>";
         public static final String calculated = "<font color='#451fed'>";
