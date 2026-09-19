@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.config.DualTelemetry;
@@ -37,7 +38,7 @@ public class GraphFieldUsingAprilTags extends OpMode {
     @Override
     public void init() {
         final TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
-        final TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
+        final TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision(AngleUnit.DEGREES);
         // TODO: calibrate camera using multiple software
         visionPortal = vision.visionPortal();
         try {
@@ -89,9 +90,12 @@ public class GraphFieldUsingAprilTags extends OpMode {
             item.addData("tag bearing from robot", detection.ftcPose.bearing);
             // Lower cluster - 36.901 in
             // Upper cluster - 50.867 in
-            // TODO: use height to find which cluster is down for our alliance
+            // TODO: use height or roll to find which cluster is down for our alliance
+            // NOTE: The pos of the cluster may be the center of the hive, not the center of the tags
             final double cameraHeight = 0.0; // TODO: measure
             item.addData("Height", detection.ftcPose.z + cameraHeight);
+            // NOTE: < 90 = up
+            item.addData("Roll", Math.abs(detection.ftcPose.roll));
             item.addData("Unit", detection.distanceUnit.name());
             item.addData("robotPose unit", detection.robotPose.getPosition().unit.name());
             if (detection.metadata != null) {

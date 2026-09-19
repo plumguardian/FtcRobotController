@@ -84,6 +84,14 @@ public class TeamCode {
         }
 
         public Vision getVision(final String webcamName) {
+            return getVision(webcamName, AngleUnit.RADIANS);
+        }
+
+        public Vision getVision(final AngleUnit angleUnit) {
+            return getVision("Webcam 1", angleUnit);
+        }
+
+        public Vision getVision(final String webcamName, final AngleUnit angleUnit) {
             final AprilTagProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
                     .setSuppressCalibrationWarnings(false)
                     .setNumThreads(4)
@@ -92,7 +100,7 @@ public class TeamCode {
                     .setDrawTagID(BuildConfig.DEBUG)
                     .setDrawTagOutline(BuildConfig.DEBUG)
 //                    .setCameraPose()
-                    .setOutputUnits(DistanceUnit.INCH, AngleUnit.RADIANS)
+                    .setOutputUnits(DistanceUnit.INCH, angleUnit)
                     .build();
             // TODO: test SQPNP, ITERATIVE, IPPE_SQUARE, and IPPE (BUILTIN and EPNP are not good for this use)
             aprilTagProcessor.setPoseSolver(AprilTagProcessor.PoseSolver.OPENCV_SQPNP);
