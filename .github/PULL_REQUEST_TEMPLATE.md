@@ -1,1 +1,3 @@
-Before issuing a pull request, please see the contributing page.
+Make sure you are targeting `plumguardian/FtcRobotController`
+
+**NOT `FIRST-Tech-Challenge/FtcRobotController`**
