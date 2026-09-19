@@ -27,9 +27,11 @@ public class GraphFieldUsingAprilTags extends OpMode {
     private AprilTagProcessor aprilTagProcessor;
     private FieldManager field;
 
+    private float oldDecimation = 1.5F;
     @Configurable
     private static class FieldGraphSettings {
-        public static AprilTagProcessor.PoseSolver poseSolver = AprilTagProcessor.PoseSolver.OPENCV_ITERATIVE;
+        public static AprilTagProcessor.PoseSolver poseSolver = AprilTagProcessor.PoseSolver.OPENCV_SQPNP;
+        public static float decimation = 1.5F;
     }
 
     @Override
@@ -59,7 +61,13 @@ public class GraphFieldUsingAprilTags extends OpMode {
 
     @Override
     public void loop() {
+        final float decimation = FieldGraphSettings.decimation;
+        if (decimation != oldDecimation) {
+            oldDecimation = decimation;
+            aprilTagProcessor.setDecimation(decimation);
+        }
         aprilTagProcessor.setPoseSolver(FieldGraphSettings.poseSolver);
+
         final List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
         if (detections.isEmpty()) {
             telemetry.addLine("No tags found");
@@ -67,13 +75,15 @@ public class GraphFieldUsingAprilTags extends OpMode {
             return;
         }
 
+        telemetry.addData("Pose solver time (ms)", aprilTagProcessor.getPerTagAvgPoseSolveTime());
+
         for (final AprilTagDetection rawDetection : detections) {
             if (!(rawDetection instanceof AprilTagClusterDetection detection)) {
                 telemetry.addData("Unexpected april tag class", rawDetection.getClass().getSimpleName());
                 continue;
             }
 
-            final Telemetry.Item item = telemetry.addData("Frame time", detection.frameAcquisitionNanoTime);
+            final Telemetry.Item item = telemetry.addData("Frame time (ns)", detection.frameAcquisitionNanoTime);
             item.addData("cluster %", detection.percentClusterFound);
             item.addData("robot pose on field", detection.robotPose); // Should be null for BIOBUZZ hives
             item.addData("tag bearing from robot", detection.ftcPose.bearing);

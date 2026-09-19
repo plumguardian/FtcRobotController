@@ -94,8 +94,9 @@ public class TeamCode {
 //                    .setCameraPose()
                     .setOutputUnits(DistanceUnit.INCH, AngleUnit.RADIANS)
                     .build();
-//            aprilTagProcessor.setPoseSolver(AprilTagProcessor.PoseSolver.);
-            aprilTagProcessor.setDecimation(2);
+            // TODO: test SQPNP, ITERATIVE, IPPE_SQUARE, and IPPE (BUILTIN and EPNP are not good for this use)
+            aprilTagProcessor.setPoseSolver(AprilTagProcessor.PoseSolver.OPENCV_SQPNP);
+            aprilTagProcessor.setDecimation(1.5F);
             // BuiltinCameraDirection.BACK can be used as a camera if it exists
             final VisionPortal visionPortal = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, webcamName))
