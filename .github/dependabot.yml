@@ -4,7 +4,9 @@ updates:
     directory: "/"
     target-branch: "BIOBUZZ-2026"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+    cooldown:
+      default-days: 1
 
   - package-ecosystem: "github-actions"
     directory: "/"
