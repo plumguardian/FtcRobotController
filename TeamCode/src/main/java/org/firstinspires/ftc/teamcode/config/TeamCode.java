@@ -20,10 +20,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.config.mecanumdrive.MotorExVelo;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.apriltag.MultiSolverAprilTagProcessorImpl;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Map;
 import java.util.function.Function;
+
+import lombok.Builder;
 
 @SuppressWarnings("unused")
 public class TeamCode {
@@ -62,7 +65,10 @@ public class TeamCode {
 
         public HardwareGetter(final HardwareMap hardwareMap) { this(hardwareMap, null); }
 
-        public record Vision(AprilTagProcessor aprilTagProcessor, VisionPortal visionPortal) {}
+        public record Vision<T extends AprilTagProcessor>(
+                T aprilTagProcessor,
+                VisionPortal visionPortal
+        ) {}
 
         public record Motors(MotorEx frontLeft, MotorEx frontRight, MotorEx backLeft, MotorEx backRight) {}
 
@@ -84,26 +90,15 @@ public class TeamCode {
         }
 
         @NonNull
-        @Contract(" -> new")
-        public Vision getVision() {
-            return getVision("Webcam 1");
-        }
-
-        @NonNull
-        @Contract("_ -> new")
-        public Vision getVision(final String webcamName) {
-            return getVision(webcamName, AngleUnit.RADIANS);
-        }
-
-        @NonNull
-        @Contract("_ -> new")
-        public Vision getVision(final AngleUnit angleUnit) {
-            return getVision("Webcam 1", angleUnit);
-        }
-
-        @NonNull
         @Contract("_, _ -> new")
-        public Vision getVision(final String webcamName, final AngleUnit angleUnit) {
+        @Builder(builderMethodName = "visionBuilder", buildMethodName = "get")
+        public Vision<AprilTagProcessor> createVision(
+                String webcamName,
+                AngleUnit angleUnit
+        ) {
+            webcamName = webcamName == null ? "Webcam 1" : webcamName;
+            angleUnit = angleUnit == null ? AngleUnit.RADIANS : angleUnit;
+
             final AprilTagProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
                     .setSuppressCalibrationWarnings(false)
                     .setNumThreads(4)
@@ -114,9 +109,11 @@ public class TeamCode {
 //                    .setCameraPose()
                     .setOutputUnits(DistanceUnit.INCH, angleUnit)
                     .build();
+
             // TODO: test SQPNP, ITERATIVE, IPPE_SQUARE, and IPPE (BUILTIN and EPNP are not good for this use)
             aprilTagProcessor.setPoseSolver(AprilTagProcessor.PoseSolver.OPENCV_SQPNP);
             aprilTagProcessor.setDecimation(1.5F);
+
             // BuiltinCameraDirection.BACK can be used as a camera if it exists
             final VisionPortal visionPortal = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, webcamName))
@@ -125,7 +122,44 @@ public class TeamCode {
                     .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                     .setCameraResolution(new Size(640, 480))
                     .build();
-            return new Vision(aprilTagProcessor, visionPortal);
+
+            return new Vision<>(aprilTagProcessor, visionPortal);
+        }
+
+        @Deprecated
+        @NonNull
+        @Contract("_, _ -> new")
+        @Builder(builderMethodName = "multiSolverVisionBuilder", buildMethodName = "getMultiSolver")
+        public Vision<MultiSolverAprilTagProcessorImpl> createMultiSolverVision(
+                String webcamName,
+                AngleUnit angleUnit
+        ) {
+            webcamName = webcamName == null ? "Webcam 1" : webcamName;
+            angleUnit = angleUnit == null ? AngleUnit.RADIANS : angleUnit;
+
+            final MultiSolverAprilTagProcessorImpl aprilTagProcessor = new MultiSolverAprilTagProcessorBuilder()
+                    .setSuppressCalibrationWarnings(false)
+                    .setNumThreads(5)
+                    .setDrawAxes(BuildConfig.DEBUG)
+                    .setDrawCubeProjection(BuildConfig.DEBUG)
+                    .setDrawTagID(BuildConfig.DEBUG)
+                    .setDrawTagOutline(BuildConfig.DEBUG)
+//                    .setCameraPose()
+                    .setOutputUnits(DistanceUnit.INCH, angleUnit)
+                    .build();
+
+            aprilTagProcessor.setDecimation(1.5F);
+
+            // BuiltinCameraDirection.BACK can be used as a camera if it exists
+            final VisionPortal visionPortal = new VisionPortal.Builder()
+                    .setCamera(hardwareMap.get(WebcamName.class, webcamName))
+                    .addProcessors(aprilTagProcessor)
+                    .setShowStatsOverlay(BuildConfig.DEBUG)
+                    .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                    .setCameraResolution(new Size(640, 480))
+                    .build();
+
+            return new Vision<>(aprilTagProcessor, visionPortal);
         }
 
         public void waitForVision(final VisionPortal visionPortal) throws InterruptedException { waitForVision(visionPortal, 50); }

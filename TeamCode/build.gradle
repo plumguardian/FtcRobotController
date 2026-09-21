@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id 'org.jetbrains.kotlin.android' version '2.4.20'
     id 'org.jetbrains.kotlin.plugin.lombok' version '2.4.20'
-    id 'io.freefair.android-lombok' version '9.0.0-alpha04' apply false
+    id 'io.freefair.android-lombok' version '8.13.+' apply false
 }
 
 apply plugin: 'com.android.application'

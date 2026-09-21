@@ -22,6 +22,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
+import lombok.val;
+
 @Autonomous(name = "Graph Field", group = "Testing")
 public class GraphFieldUsingAprilTags extends OpMode {
     private VisionPortal visionPortal;
@@ -30,15 +32,15 @@ public class GraphFieldUsingAprilTags extends OpMode {
 
     private float oldDecimation = 1.5F;
     @Configurable
-    private static class FieldGraphSettings {
+    private static class GraphFieldTestSettings {
         public static AprilTagProcessor.PoseSolver poseSolver = AprilTagProcessor.PoseSolver.OPENCV_SQPNP;
         public static float decimation = 1.5F;
     }
 
     @Override
     public void init() {
-        final TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
-        final TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision(AngleUnit.DEGREES);
+        val hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
+        val vision = hardwareGetter.visionBuilder().angleUnit(AngleUnit.DEGREES).get();
         // TODO: calibrate camera using multiple software
         visionPortal = vision.visionPortal();
         try {
@@ -62,12 +64,12 @@ public class GraphFieldUsingAprilTags extends OpMode {
 
     @Override
     public void loop() {
-        final float decimation = FieldGraphSettings.decimation;
+        final float decimation = GraphFieldTestSettings.decimation;
         if (decimation != oldDecimation) {
             oldDecimation = decimation;
             aprilTagProcessor.setDecimation(decimation);
         }
-        aprilTagProcessor.setPoseSolver(FieldGraphSettings.poseSolver);
+        aprilTagProcessor.setPoseSolver(GraphFieldTestSettings.poseSolver);
 
         final List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
         if (detections.isEmpty()) {
@@ -80,7 +82,7 @@ public class GraphFieldUsingAprilTags extends OpMode {
 
         for (final AprilTagDetection rawDetection : detections) {
             if (!(rawDetection instanceof AprilTagClusterDetection detection)) {
-                telemetry.addData("Unexpected april tag class", rawDetection.getClass().getSimpleName());
+                telemetry.addData("Unexpected AprilTag class", rawDetection.getClass().getSimpleName());
                 continue;
             }
 
@@ -101,7 +103,7 @@ public class GraphFieldUsingAprilTags extends OpMode {
             if (detection.metadata != null) {
                 item.addData("name", detection.metadata.name);
                 item.addData("Metadata unit", detection.metadata.distanceUnit.name());
-                item.addData("dist", DistanceUnit.INCH.fromUnit(detection.metadata.distanceUnit, detection.ftcPose.range));
+                item.addData("dist (in)", DistanceUnit.INCH.fromUnit(detection.metadata.distanceUnit, detection.ftcPose.range));
             } else {
                 item.addData("dist", detection.ftcPose.range);
             }

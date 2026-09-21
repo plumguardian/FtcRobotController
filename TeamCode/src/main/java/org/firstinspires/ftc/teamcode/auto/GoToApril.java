@@ -36,7 +36,9 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "Go To April Tag", group = "Auto")
+import lombok.val;
+
+@Autonomous(name = "Go To AprilTag", group = "Auto")
 public class GoToApril extends OpMode {
     @SuppressWarnings("unused")
     private enum Field {
@@ -82,8 +84,8 @@ public class GoToApril extends OpMode {
     public void init() {
         Scheduler.reset();
 
-        final TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
-        final TeamCode.HardwareGetter.Vision vision = hardwareGetter.getVision();
+        val hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
+        val vision = hardwareGetter.visionBuilder().get();
 
         final VisionPortal visionPortal = vision.visionPortal();
         try {
@@ -120,7 +122,7 @@ public class GoToApril extends OpMode {
         field.setStyle(redStyle);
         for (AprilTagDetection rawDetection : newDetections) {
             if (!(rawDetection instanceof AprilTagClusterDetection detection)) {
-                telemetry.addData("Unexpected april tag class", rawDetection.getClass().getSimpleName());
+                telemetry.addData("Unexpected AprilTag class", rawDetection.getClass().getSimpleName());
                 continue;
             }
 
