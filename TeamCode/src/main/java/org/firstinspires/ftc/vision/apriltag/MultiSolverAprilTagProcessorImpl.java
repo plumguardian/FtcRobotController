@@ -70,6 +70,8 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 
+import lombok.val;
+
 @Deprecated
 public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
 {
@@ -560,30 +562,27 @@ public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
             {
                 canvasAnnotator.noteDrawParams(scaleBmpPxToCanvasPx, scaleCanvasDensity);
 
-                ArrayList<AprilTagDetection> dets = (ArrayList<AprilTagDetection>) userContext;
+                Map<PoseSolver, ArrayList<AprilTagDetection>> dets = (Map<PoseSolver, ArrayList<AprilTagDetection>>) userContext;
 
+                val itter = dets.values().iterator();
                 // For fun, draw 6DOF markers on the image.
-                for(AprilTagDetection detection : dets)
-                {
-                    if (drawTagID)
-                    {
-                        canvasAnnotator.drawTagID(detection, canvas);
-                    }
+                if (itter.hasNext()) {
+                    for (AprilTagDetection detection : itter.next()) {
+                        if (drawTagID) {
+                            canvasAnnotator.drawTagID(detection, canvas);
+                        }
 
-                    // Could be null if we couldn't solve the pose earlier due to not knowing tag size
-                    if (detection.rawPose != null)
-                    {
-                        if (drawOutline)
-                        {
-                            canvasAnnotator.drawOutlineMarker(detection, canvas);
-                        }
-                        if (drawAxes)
-                        {
-                            canvasAnnotator.drawAxisMarker(detection, canvas);
-                        }
-                        if (drawCube)
-                        {
-                            canvasAnnotator.draw3dRectMarker(detection, canvas);
+                        // Could be null if we couldn't solve the pose earlier due to not knowing tag size
+                        if (detection.rawPose != null) {
+                            if (drawOutline) {
+                                canvasAnnotator.drawOutlineMarker(detection, canvas);
+                            }
+                            if (drawAxes) {
+                                canvasAnnotator.drawAxisMarker(detection, canvas);
+                            }
+                            if (drawCube) {
+                                canvasAnnotator.draw3dRectMarker(detection, canvas);
+                            }
                         }
                     }
                 }
