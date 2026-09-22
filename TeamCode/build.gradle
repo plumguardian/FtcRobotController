@@ -2,12 +2,11 @@ import io.freefair.gradle.plugins.lombok.tasks.Delombok
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
+    id 'com.android.application'
     id 'org.jetbrains.kotlin.android' version '2.4.20'
     id 'org.jetbrains.kotlin.plugin.lombok' version '2.4.20'
-    id 'io.freefair.android-lombok' version '8.13.+' apply false
+    id 'io.freefair.android-lombok' version '8.13.2.+'
 }
-
-apply plugin: 'com.android.application'
 
 //
 // build.gradle in TeamCode
@@ -20,7 +19,6 @@ apply plugin: 'com.android.application'
 // before doing so.
 
 // Custom definitions may go here
-apply plugin: 'io.freefair.android-lombok'
 
 tasks.withType(Delombok).configureEach {
     classpath.from(file(
