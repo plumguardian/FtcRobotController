@@ -18,8 +18,10 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.config.mecanumdrive.MotorExVelo;
+import org.firstinspires.ftc.teamcode.vision.MultiSolverAprilTagProcessorBuilder;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.apriltag.MultiSolverAprilTagProcessorAltImpl;
 import org.firstinspires.ftc.vision.apriltag.MultiSolverAprilTagProcessorImpl;
 import org.jetbrains.annotations.Contract;
 
@@ -146,7 +148,43 @@ public class TeamCode {
                     .setDrawTagOutline(BuildConfig.DEBUG)
 //                    .setCameraPose()
                     .setOutputUnits(DistanceUnit.INCH, angleUnit)
+                    .build(MultiSolverAprilTagProcessorImpl::new);
+
+            aprilTagProcessor.setDecimation(1.5F);
+
+            // BuiltinCameraDirection.BACK can be used as a camera if it exists
+            final VisionPortal visionPortal = new VisionPortal.Builder()
+                    .setCamera(hardwareMap.get(WebcamName.class, webcamName))
+                    .addProcessors(aprilTagProcessor)
+                    .setShowStatsOverlay(BuildConfig.DEBUG)
+                    .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                    .setCameraResolution(new Size(640, 480))
                     .build();
+
+            return new Vision<>(aprilTagProcessor, visionPortal);
+        }
+
+        @Deprecated
+        @NonNull
+        @Contract("_, _ -> new")
+        @Builder(builderMethodName = "multiSolverAltVisionBuilder", buildMethodName = "getMultiSolverAlt")
+        public Vision<MultiSolverAprilTagProcessorAltImpl> createMultiSolverAltVision(
+                String webcamName,
+                AngleUnit angleUnit
+        ) {
+            webcamName = webcamName == null ? "Webcam 1" : webcamName;
+            angleUnit = angleUnit == null ? AngleUnit.RADIANS : angleUnit;
+
+            final MultiSolverAprilTagProcessorAltImpl aprilTagProcessor = new MultiSolverAprilTagProcessorBuilder()
+                    .setSuppressCalibrationWarnings(false)
+                    .setNumThreads(5)
+                    .setDrawAxes(BuildConfig.DEBUG)
+                    .setDrawCubeProjection(BuildConfig.DEBUG)
+                    .setDrawTagID(BuildConfig.DEBUG)
+                    .setDrawTagOutline(BuildConfig.DEBUG)
+//                    .setCameraPose()
+                    .setOutputUnits(DistanceUnit.INCH, angleUnit)
+                    .build(MultiSolverAprilTagProcessorAltImpl::new);
 
             aprilTagProcessor.setDecimation(1.5F);
 

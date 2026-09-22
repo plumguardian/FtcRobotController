@@ -36,7 +36,7 @@ public class PoseSolverTest extends OpMode {
 
     private float oldDecimation = 1.5F;
     @Configurable
-    private static class PoseSolverTestSettings {
+    static class PoseSolverTestSettings {
         public static float decimation = 1.5F;
         public static Map<AprilTagProcessor.PoseSolver, String> colorMap = new HashMap<>(Map.of(
                 AprilTagProcessor.PoseSolver.APRILTAG_BUILTIN,      "#FF453A",

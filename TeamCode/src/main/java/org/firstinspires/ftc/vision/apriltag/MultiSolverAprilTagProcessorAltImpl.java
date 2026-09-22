@@ -54,6 +54,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibrationHelper;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.PlaceholderCalibratedAspectRatioMismatch;
+import org.firstinspires.ftc.teamcode.vision.AprilTagClusterDetectionWithPose;
+import org.firstinspires.ftc.teamcode.vision.AprilTagSingleDetectionWithPose;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -67,21 +69,17 @@ import org.openftc.apriltag.AprilTagDetectorJNI;
 import org.openftc.apriltag.ApriltagDetectionJNI;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.Map;
-
-import lombok.val;
 
 @Deprecated
-public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
+public class MultiSolverAprilTagProcessorAltImpl extends AprilTagProcessor
 {
-    public static final String TAG = "MultiSolverAprilTagProcessorImpl";
+    public static final String TAG = "MultiSolverAprilTagProcessorAltImpl";
 
     private long nativeApriltagPtr;
     private Mat grey = new Mat();
-    private Map<PoseSolver, ArrayList<AprilTagDetection>> detections = new EnumMap<>(PoseSolver.class);
+    private ArrayList<AprilTagDetection> detections = new ArrayList<>();
 
-    private Map<PoseSolver, ArrayList<AprilTagDetection>> detectionsUpdate = new EnumMap<>(PoseSolver.class);
+    private ArrayList<AprilTagDetection> detectionsUpdate = new ArrayList<>();
     private final Object detectionsUpdateSync = new Object();
     private boolean drawAxes;
     private boolean drawCube;
@@ -109,7 +107,7 @@ public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
 
     private OpenGLMatrix robotInCameraFrame;
 
-    public MultiSolverAprilTagProcessorImpl(OpenGLMatrix robotInCameraFrame, double fx, double fy, double cx, double cy, DistanceUnit outputUnitsLength, AngleUnit outputUnitsAngle, AprilTagLibrary tagLibrary,
+    public MultiSolverAprilTagProcessorAltImpl(OpenGLMatrix robotInCameraFrame, double fx, double fy, double cx, double cy, DistanceUnit outputUnitsLength, AngleUnit outputUnitsAngle, AprilTagLibrary tagLibrary,
                                  boolean drawAxes, boolean drawCube, boolean drawOutline, boolean drawTagID, TagFamily tagFamily, int threads, boolean suppressCalibrationWarnings)
     {
         this.robotInCameraFrame = robotInCameraFrame;
@@ -132,7 +130,6 @@ public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
         nativeApriltagPtr = AprilTagDetectorJNI.createApriltagDetector(tagFamily.ATLibTF.string, 3, threads);
     }
 
-    @SuppressWarnings("removal")
     @Override
     protected void finalize()
     {
@@ -273,7 +270,7 @@ public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
         return cornerPts;
     }
 
-    private Map<PoseSolver, AprilTagPoseRaw> doClusterSolve(TagClusterNotebook n)
+    private AprilTagPoseRaw doClusterSolve(TagClusterNotebook n, PoseSolver solver)
     {
         final int CORNERS_PER_TAG = 4;
 
@@ -301,69 +298,65 @@ public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
             idealProjectionPts[tag * CORNERS_PER_TAG + 3] = new Point3(-tagsize/2 + offsetX, -tagsize/2 + offsetY, offsetZ);
         }
 
-        final Map<PoseSolver, AprilTagPoseRaw> poses = new EnumMap<>(PoseSolver.class);
+        Pose opencvPose = poseFromNGrt4Pts(imagePts, idealProjectionPts, cameraMatrix, solver.code);
 
-        for (PoseSolver solver : PoseSolver.values()) {
-            Pose opencvPose = poseFromNGrt4Pts(imagePts, idealProjectionPts, cameraMatrix, solver.code);
+        // Build rotation matrix
+        Mat R = new Mat(3, 3, CvType.CV_32F);
+        Calib3d.Rodrigues(opencvPose.rvec, R);
+        float[] tmp2 = new float[9];
+        R.get(0,0, tmp2);
+
+        return new AprilTagPoseRaw(
+                opencvPose.tvec.get(0,0)[0], // x
+                opencvPose.tvec.get(1,0)[0], // y
+                opencvPose.tvec.get(2,0)[0], // z
+                new GeneralMatrixF(3,3, tmp2)); // R
+    }
+
+    private MovingStatistics solveTime = new MovingStatistics(50);
+
+    private AprilTagPoseRaw doSingleTagPoseSolve(AprilTagMetadata metadata, PoseSolver solver, Point[] cornerPts, long ptrDetection)
+    {
+        AprilTagPoseRaw rawPose;
+        long startSolveTime = System.currentTimeMillis();
+
+        if (solver == PoseSolver.APRILTAG_BUILTIN)
+        {
+            double[] pose = ApriltagDetectionJNI.getPoseEstimate(
+                    ptrDetection,
+                    outputUnitsLength.fromUnit(metadata.distanceUnit, metadata.tagsize),
+                    fx, fy, cx, cy);
+
+            // Build rotation matrix
+            float[] rotMtxVals = new float[3 * 3];
+            for (int i = 0; i < 9; i++)
+            {
+                rotMtxVals[i] = (float) pose[3 + i];
+            }
+
+            rawPose = new AprilTagPoseRaw(
+                    pose[0], pose[1], pose[2], // x y z
+                    new GeneralMatrixF(3, 3, rotMtxVals)); // R
+        }
+        else
+        {
+            Pose opencvPose = poseFromTrapezoid(
+                    cornerPts,
+                    cameraMatrix,
+                    outputUnitsLength.fromUnit(metadata.distanceUnit, metadata.tagsize),
+                    solver.code);
 
             // Build rotation matrix
             Mat R = new Mat(3, 3, CvType.CV_32F);
             Calib3d.Rodrigues(opencvPose.rvec, R);
             float[] tmp2 = new float[9];
-            R.get(0, 0, tmp2);
+            R.get(0,0, tmp2);
 
-            poses.put(solver, new AprilTagPoseRaw(
-                    opencvPose.tvec.get(0, 0)[0], // x
-                    opencvPose.tvec.get(1, 0)[0], // y
-                    opencvPose.tvec.get(2, 0)[0], // z
-                    new GeneralMatrixF(3, 3, tmp2))); // R
-        }
-
-        return poses;
-    }
-
-    private MovingStatistics solveTime = new MovingStatistics(50);
-
-    private Map<PoseSolver, AprilTagPoseRaw> doSingleTagPoseSolve(AprilTagMetadata metadata, Point[] cornerPts, long ptrDetection)
-    {
-        final Map<PoseSolver, AprilTagPoseRaw> rawPose = new EnumMap<>(PoseSolver.class);
-        long startSolveTime = System.currentTimeMillis();
-
-        for (PoseSolver solver : PoseSolver.values()) {
-            if (solver == PoseSolver.APRILTAG_BUILTIN) {
-                double[] pose = ApriltagDetectionJNI.getPoseEstimate(
-                        ptrDetection,
-                        outputUnitsLength.fromUnit(metadata.distanceUnit, metadata.tagsize),
-                        fx, fy, cx, cy);
-
-                // Build rotation matrix
-                float[] rotMtxVals = new float[3 * 3];
-                for (int i = 0; i < 9; i++) {
-                    rotMtxVals[i] = (float) pose[3 + i];
-                }
-
-                rawPose.put(solver, new AprilTagPoseRaw(
-                        pose[0], pose[1], pose[2], // x y z
-                        new GeneralMatrixF(3, 3, rotMtxVals))); // R
-            } else {
-                Pose opencvPose = poseFromTrapezoid(
-                        cornerPts,
-                        cameraMatrix,
-                        outputUnitsLength.fromUnit(metadata.distanceUnit, metadata.tagsize),
-                        solver.code);
-
-                // Build rotation matrix
-                Mat R = new Mat(3, 3, CvType.CV_32F);
-                Calib3d.Rodrigues(opencvPose.rvec, R);
-                float[] tmp2 = new float[9];
-                R.get(0, 0, tmp2);
-
-                rawPose.put(solver, new AprilTagPoseRaw(
-                        opencvPose.tvec.get(0, 0)[0], // x
-                        opencvPose.tvec.get(1, 0)[0], // y
-                        opencvPose.tvec.get(2, 0)[0], // z
-                        new GeneralMatrixF(3, 3, tmp2))); // R
-            }
+            rawPose = new AprilTagPoseRaw(
+                    opencvPose.tvec.get(0,0)[0], // x
+                    opencvPose.tvec.get(1,0)[0], // y
+                    opencvPose.tvec.get(2,0)[0], // z
+                    new GeneralMatrixF(3,3, tmp2)); // R
         }
 
         long endSolveTime = System.currentTimeMillis();
@@ -425,7 +418,7 @@ public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
         return findings;
     }
 
-    Map<PoseSolver, ArrayList<AprilTagDetection>> runAprilTagDetectorForMultipleTagSizes(long captureTimeNanos)
+    ArrayList<AprilTagDetection> runAprilTagDetectorForMultipleTagSizes(long captureTimeNanos)
     {
         long ptrDetectionArray = AprilTagDetectorJNI.runApriltagDetector(nativeApriltagPtr, grey.dataAddr(), grey.width(), grey.height());
 
@@ -434,29 +427,27 @@ public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
             // native code gave null pointer, nothing we can do here
             // note native code will return null if there was nothing for
             // it to put into the list
-            return new EnumMap<>(PoseSolver.class);
+            return new ArrayList<>();
         }
 
         long[] detectionPointers = ApriltagDetectionJNI.getDetectionPointers(ptrDetectionArray);
-        Map<PoseSolver, ArrayList<AprilTagDetection>> detections = new EnumMap<>(PoseSolver.class);
-
-        for (PoseSolver solver : PoseSolver.values())
-            detections.put(solver, new ArrayList<>(detectionPointers.length));
+        ArrayList<AprilTagDetection> detections = new ArrayList<>(detectionPointers.length);
 
         PreliminaryFrameFindings prelimFindings = segmentFrameFindings(detectionPointers);
 
         // Process tag clusters
         for (TagClusterNotebook n : prelimFindings.clusterNotebooks)
         {
-            for (Map.Entry<PoseSolver, AprilTagPoseRaw> entry : doClusterSolve(n).entrySet()) {
-                AprilTagPoseRaw rawPose = entry.getValue();
+            for (PoseSolver poseSolver : PoseSolver.values())
+            {
+                AprilTagPoseRaw rawPose = doClusterSolve(n, poseSolver);
                 AprilTagPoseFtc ftcPose = rawPoseToFtcPose(rawPose);
                 Pose3D robotPose = computeRobotPose(rawPose, n.cluster.fieldPosition, n.cluster.fieldOrientation, captureTimeNanos);
 
                 int percentClusterFound = Math.round(((float) n.detections.size() / n.cluster.clusterMembers.size()) * 100);
 
-                detections.get(entry.getKey()).add(new AprilTagClusterDetection(
-                        percentClusterFound, n.cluster, outputUnitsLength, ftcPose, rawPose, robotPose, captureTimeNanos)
+                detections.add(new AprilTagClusterDetectionWithPose(
+                        percentClusterFound, n.cluster, outputUnitsLength, ftcPose, rawPose, robotPose, captureTimeNanos, poseSolver)
                 );
             }
         }
@@ -468,30 +459,21 @@ public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
 
             if (metadata != null)
             {
-                // note that poseSolver changes are not synchronized with anything so
-                // it can change at any time, however we are effectively snapshotting
-                // it when we pass it as an argument here
-                for (Map.Entry<PoseSolver, AprilTagPoseRaw> entry : doSingleTagPoseSolve(metadata, det.corners, det.ptrNativeDetection).entrySet()) {
-                    AprilTagPoseRaw rawPose = entry.getValue();
+                for (PoseSolver poseSolver : PoseSolver.values())
+                {
+                    // note that poseSolver changes are not synchronized with anything so
+                    // it can change at any time, however we are effectively snapshotting
+                    // it when we pass it as an argument here
+                    AprilTagPoseRaw rawPose = doSingleTagPoseSolve(metadata, poseSolver, det.corners, det.ptrNativeDetection);
+
                     AprilTagPoseFtc ftcPose = rawPoseToFtcPose(rawPose);
                     Pose3D robotPose = computeRobotPose(rawPose, metadata.fieldPosition, metadata.fieldOrientation, captureTimeNanos);
 
-                    detections.get(entry.getKey()).add(new AprilTagSingleDetection(
+                    detections.add(new AprilTagSingleDetectionWithPose(
                             det.id,
                             ApriltagDetectionJNI.getHamming(det.ptrNativeDetection),
                             ApriltagDetectionJNI.getDecisionMargin(det.ptrNativeDetection),
-                            det.center, det.corners, metadata, ftcPose, rawPose, robotPose, captureTimeNanos, outputUnitsLength));
-                }
-            }
-            else
-            {
-                // We don't know anything about the tag size so we can't solve the pose
-                for (PoseSolver solver : PoseSolver.values()) {
-                    detections.get(solver).add(new AprilTagSingleDetection(
-                            det.id,
-                            ApriltagDetectionJNI.getHamming(det.ptrNativeDetection),
-                            ApriltagDetectionJNI.getDecisionMargin(det.ptrNativeDetection),
-                            det.center, det.corners, null, null, null, null, captureTimeNanos, outputUnitsLength));
+                            det.center, det.corners, metadata, ftcPose, rawPose, robotPose, captureTimeNanos, outputUnitsLength, poseSolver));
                 }
             }
         }
@@ -562,27 +544,30 @@ public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
             {
                 canvasAnnotator.noteDrawParams(scaleBmpPxToCanvasPx, scaleCanvasDensity);
 
-                Map<PoseSolver, ArrayList<AprilTagDetection>> dets = (Map<PoseSolver, ArrayList<AprilTagDetection>>) userContext;
+                ArrayList<AprilTagDetection> dets = (ArrayList<AprilTagDetection>) userContext;
 
-                val itter = dets.values().iterator();
                 // For fun, draw 6DOF markers on the image.
-                if (itter.hasNext()) {
-                    for (AprilTagDetection detection : itter.next()) {
-                        if (drawTagID) {
-                            canvasAnnotator.drawTagID(detection, canvas);
-                        }
+                for(AprilTagDetection detection : dets)
+                {
+                    if (drawTagID)
+                    {
+                        canvasAnnotator.drawTagID(detection, canvas);
+                    }
 
-                        // Could be null if we couldn't solve the pose earlier due to not knowing tag size
-                        if (detection.rawPose != null) {
-                            if (drawOutline) {
-                                canvasAnnotator.drawOutlineMarker(detection, canvas);
-                            }
-                            if (drawAxes) {
-                                canvasAnnotator.drawAxisMarker(detection, canvas);
-                            }
-                            if (drawCube) {
-                                canvasAnnotator.draw3dRectMarker(detection, canvas);
-                            }
+                    // Could be null if we couldn't solve the pose earlier due to not knowing tag size
+                    if (detection.rawPose != null)
+                    {
+                        if (drawOutline)
+                        {
+                            canvasAnnotator.drawOutlineMarker(detection, canvas);
+                        }
+                        if (drawAxes)
+                        {
+                            canvasAnnotator.drawAxisMarker(detection, canvas);
+                        }
+                        if (drawCube)
+                        {
+                            canvasAnnotator.draw3dRectMarker(detection, canvas);
                         }
                     }
                 }
@@ -613,30 +598,18 @@ public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
         return (int) Math.round(solveTime.getMean());
     }
 
-    @Deprecated
     @Override
     public ArrayList<AprilTagDetection> getDetections()
-    {
-        throw new RuntimeException("Use getAllDetections");
-    }
-
-    public Map<PoseSolver, ArrayList<AprilTagDetection>> getAllDetections()
     {
         return detections;
     }
 
-    @Deprecated
     @Override
     public ArrayList<AprilTagDetection> getFreshDetections()
     {
-        throw new RuntimeException("Use getAllFreshDetections");
-    }
-
-    public Map<PoseSolver, ArrayList<AprilTagDetection>> getAllFreshDetections()
-    {
         synchronized (detectionsUpdateSync)
         {
-            var ret = detectionsUpdate;
+            ArrayList<AprilTagDetection> ret = detectionsUpdate;
             detectionsUpdate = null;
             return ret;
         }

@@ -31,7 +31,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.config;
+package org.firstinspires.ftc.teamcode.vision;
 
 import static org.firstinspires.ftc.vision.apriltag.AprilTagProcessor.THREADS_DEFAULT;
 
@@ -211,7 +211,7 @@ public class MultiSolverAprilTagProcessorBuilder {
      * {@link org.firstinspires.ftc.vision.VisionPortal.Builder#addProcessor(VisionProcessor)}
      * @return a {@link VisionProcessor} object
      */
-    public MultiSolverAprilTagProcessorImpl build()
+    public <T> T build(AprilTagProcessorFactory<T> factory)
     {
         if (tagLibrary == null)
         {
@@ -239,7 +239,7 @@ public class MultiSolverAprilTagProcessorBuilder {
                 .multiplied(cameraRotationMatrix)
                 .inverted();
 
-        return new MultiSolverAprilTagProcessorImpl(
+        return factory.create(
                 robotInCameraFrame, fx, fy, cx, cy,
                 outputUnitsLength, outputUnitsAngle, tagLibrary,
                 drawAxes, drawCube, drawOutline, drawTagId,
