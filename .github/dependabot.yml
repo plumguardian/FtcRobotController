@@ -25,9 +25,13 @@ updates:
       - dairy-maven
       - bylazar-maven
       - jitpack
+    assignees:
+      - "plumguardian"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     target-branch: "BIOBUZZ-2026"
     schedule:
       interval: "weekly"
+    assignees:
+      - "plumguardian"
