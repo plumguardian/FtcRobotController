@@ -23,7 +23,6 @@ import lombok.val;
 
 @Autonomous(name = "PoseSolver Test (Alt)", group = "Testing")
 public class PoseSolverTestAlt extends OpMode {
-    private VisionPortal visionPortal;
     private MultiSolverAprilTagProcessorAltImpl aprilTagProcessor;
     private FieldManager field;
 
@@ -34,7 +33,7 @@ public class PoseSolverTestAlt extends OpMode {
         val hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         val vision = hardwareGetter.multiSolverAltVisionBuilder().angleUnit(AngleUnit.DEGREES).getMultiSolverAlt();
         // TODO: calibrate camera using multiple software
-        visionPortal = vision.visionPortal();
+        val visionPortal = vision.visionPortal();
         try {
             hardwareGetter.waitForVision(visionPortal);
         } catch (InterruptedException e) {
@@ -46,12 +45,8 @@ public class PoseSolverTestAlt extends OpMode {
         field = PanelsField.INSTANCE.getField();
         field.setOffsets(FieldPresets.INSTANCE.getDEFAULT_FTC());
         field.update();
-    }
 
-    @Override
-    public void start() {
         PanelsCameraStream.INSTANCE.startStream(visionPortal, TeamCode.CAMERA_FPS);
-        visionPortal = null;
     }
 
     @Override
