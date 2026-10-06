@@ -1,4 +1,18 @@
 version: 2
+
+registries:
+  dairy-maven:
+    type: maven-repository
+    url: https://repo.dairy.foundation/releases
+
+  bylazar-maven:
+    type: maven-repository
+    url: https://mymaven.bylazar.com/releases
+
+  jitpack:
+    type: maven-repository
+    url: https://jitpack.io
+
 updates:
   - package-ecosystem: "gradle"
     directory: "/"
@@ -7,6 +21,10 @@ updates:
       interval: "daily"
     cooldown:
       default-days: 1
+    registries:
+      - dairy-maven
+      - bylazar-maven
+      - jitpack
 
   - package-ecosystem: "github-actions"
     directory: "/"
