@@ -19,8 +19,10 @@ import org.firstinspires.ftc.vision.apriltag.MultiSolverAprilTagProcessorAltImpl
 
 import java.util.List;
 
+import dev.frozenmilk.sinister.loading.Pinned;
 import lombok.val;
 
+@Pinned
 @Autonomous(name = "PoseSolver Test (Alt)", group = "Testing")
 public class PoseSolverTestAlt extends OpMode {
     private MultiSolverAprilTagProcessorAltImpl aprilTagProcessor;

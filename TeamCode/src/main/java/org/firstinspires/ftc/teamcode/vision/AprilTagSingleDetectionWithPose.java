@@ -9,6 +9,9 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
 import org.opencv.core.Point;
 
+import dev.frozenmilk.sinister.loading.Pinned;
+
+@Pinned
 @Deprecated
 public class AprilTagSingleDetectionWithPose extends AprilTagSingleDetection {
     public final AprilTagProcessor.PoseSolver poseSolver;
