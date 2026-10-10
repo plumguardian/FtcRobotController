@@ -28,6 +28,7 @@ import java.util.Map;
 import kotlin.collections.MapsKt;
 import lombok.val;
 
+@Deprecated
 @Autonomous(name = "PoseSolver Test", group = "Testing")
 public class PoseSolverTest extends OpMode {
     private VisionPortal visionPortal;
