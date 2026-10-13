@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.config.CameraTestConfig;
 import org.firstinspires.ftc.teamcode.config.DualTelemetry;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -29,16 +30,11 @@ public class GraphFieldUsingAprilTags extends OpMode {
     private VisionPortal visionPortal;
     private AprilTagProcessor aprilTagProcessor;
     private FieldManager field;
-
     private float oldDecimation = 1.5F;
-    @Configurable
-    private static class GraphFieldTestSettings {
-        public static AprilTagProcessor.PoseSolver poseSolver = AprilTagProcessor.PoseSolver.OPENCV_SQPNP;
-        public static float decimation = 1.5F;
-    }
 
     @Override
     public void init() {
+        telemetry = new DualTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         val hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         val vision = hardwareGetter.visionBuilder().angleUnit(AngleUnit.DEGREES).get();
         // TODO: calibrate camera using multiple software
@@ -64,12 +60,8 @@ public class GraphFieldUsingAprilTags extends OpMode {
 
     @Override
     public void loop() {
-        final float decimation = GraphFieldTestSettings.decimation;
-        if (decimation != oldDecimation) {
-            oldDecimation = decimation;
-            aprilTagProcessor.setDecimation(decimation);
-        }
-        aprilTagProcessor.setPoseSolver(GraphFieldTestSettings.poseSolver);
+        CameraTestConfig.update(aprilTagProcessor, oldDecimation);
+        oldDecimation = CameraTestConfig.decimation;
 
         final List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
         if (detections.isEmpty()) {
@@ -117,5 +109,7 @@ public class GraphFieldUsingAprilTags extends OpMode {
     }
 
     @Override
-    public void stop() { PanelsCameraStream.INSTANCE.stopStream(); }
+    public void stop() {
+        PanelsCameraStream.INSTANCE.stopStream();
+    }
 }

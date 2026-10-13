@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.config.CameraTestConfig;
 import org.firstinspires.ftc.teamcode.config.DualTelemetry;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -38,7 +39,6 @@ public class PoseSolverTest extends OpMode {
     private float oldDecimation = 1.5F;
     @Configurable
     static class PoseSolverTestSettings {
-        public static float decimation = 1.5F;
         public static Map<AprilTagProcessor.PoseSolver, String> colorMap = new HashMap<>(Map.of(
                 AprilTagProcessor.PoseSolver.APRILTAG_BUILTIN,      "#FF453A",
                 AprilTagProcessor.PoseSolver.OPENCV_ITERATIVE,      "#FF9F0A",
@@ -51,6 +51,7 @@ public class PoseSolverTest extends OpMode {
 
     @Override
     public void init() {
+        telemetry = new DualTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         val hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         val vision = hardwareGetter.multiSolverVisionBuilder().angleUnit(AngleUnit.DEGREES).getMultiSolver();
         // TODO: calibrate camera using multiple software
@@ -76,11 +77,8 @@ public class PoseSolverTest extends OpMode {
 
     @Override
     public void loop() {
-        final float decimation = PoseSolverTestSettings.decimation;
-        if (decimation != oldDecimation) {
-            oldDecimation = decimation;
-            aprilTagProcessor.setDecimation(decimation);
-        }
+        CameraTestConfig.update(aprilTagProcessor, oldDecimation);
+        oldDecimation = CameraTestConfig.decimation;
 
         final Map<AprilTagProcessor.PoseSolver, ArrayList<AprilTagDetection>> detections = aprilTagProcessor.getAllDetections();
 
@@ -114,5 +112,7 @@ public class PoseSolverTest extends OpMode {
     }
 
     @Override
-    public void stop() { PanelsCameraStream.INSTANCE.stopStream(); }
+    public void stop() {
+        PanelsCameraStream.INSTANCE.stopStream();
+    }
 }

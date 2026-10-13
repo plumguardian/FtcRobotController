@@ -4,6 +4,7 @@ import com.bylazar.camerastream.PanelsCameraStream;
 import com.bylazar.field.FieldManager;
 import com.bylazar.field.FieldPresets;
 import com.bylazar.field.PanelsField;
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -11,6 +12,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.config.CameraTestConfig;
+import org.firstinspires.ftc.teamcode.config.DualTelemetry;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.teamcode.vision.AprilTagClusterDetectionWithPose;
@@ -28,11 +31,11 @@ import lombok.val;
 public class PoseSolverTestAlt extends OpMode {
     private MultiSolverAprilTagProcessorAltImpl aprilTagProcessor;
     private FieldManager field;
-
     private float oldDecimation = 1.5F;
 
     @Override
     public void init() {
+        telemetry = new DualTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         val hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         val vision = hardwareGetter.multiSolverAltVisionBuilder().angleUnit(AngleUnit.DEGREES).getMultiSolverAlt();
         // TODO: calibrate camera using multiple software
@@ -54,11 +57,8 @@ public class PoseSolverTestAlt extends OpMode {
 
     @Override
     public void loop() {
-        final float decimation = PoseSolverTest.PoseSolverTestSettings.decimation;
-        if (decimation != oldDecimation) {
-            oldDecimation = decimation;
-            aprilTagProcessor.setDecimation(decimation);
-        }
+        CameraTestConfig.update(aprilTagProcessor, oldDecimation);
+        oldDecimation = CameraTestConfig.decimation;
 
         final List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
 
@@ -89,5 +89,7 @@ public class PoseSolverTestAlt extends OpMode {
     }
 
     @Override
-    public void stop() { PanelsCameraStream.INSTANCE.stopStream(); }
+    public void stop() {
+        PanelsCameraStream.INSTANCE.stopStream();
+    }
 }
