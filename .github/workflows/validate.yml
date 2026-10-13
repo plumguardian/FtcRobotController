@@ -1,4 +1,7 @@
-name: Build
+name: Validate
+
+permissions:
+  contents: read
 
 on:
   pull_request:
@@ -11,7 +14,6 @@ on:
 jobs:
   wrapper-validation:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -22,7 +24,6 @@ jobs:
   build:
     needs: wrapper-validation
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -38,27 +39,3 @@ jobs:
 
       - name: Build
         run: ./gradlew build
-
-  dependency-submission:
-    needs: wrapper-validation
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Set up Java
-        uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: '25'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Generate and submit dependency graph
-        uses: gradle/actions/dependency-submission@v6

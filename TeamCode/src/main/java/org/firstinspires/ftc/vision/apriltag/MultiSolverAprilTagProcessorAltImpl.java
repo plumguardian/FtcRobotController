@@ -440,7 +440,6 @@ public class MultiSolverAprilTagProcessorAltImpl extends AprilTagProcessor
         {
             for (PoseSolver poseSolver : PoseSolver.values())
             {
-                // TODO: SOLVEPNP_ITERATIVE, SOLVEPNP_P3P, SOLVEPNP_EPNP, SOLVEPNP_DLS, SOLVEPNP_UPNP, SOLVEPNP_AP3P, SOLVEPNP_IPPE, SOLVEPNP_IPPE_SQUARE, SOLVEPNP_SQPNP
                 if (poseSolver == PoseSolver.APRILTAG_BUILTIN || poseSolver == PoseSolver.OPENCV_IPPE_SQUARE)
                     continue;
                 AprilTagPoseRaw rawPose = doClusterSolve(n, poseSolver);
