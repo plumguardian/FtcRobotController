@@ -2,7 +2,10 @@ package org.firstinspires.ftc.teamcode.config;
 
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.RESET_YAW_TOGGLE;
 
+import androidx.annotation.NonNull;
+
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class DriveConfig {
     public static boolean OLD_RESET_YAW_TOGGLE = false;
@@ -13,6 +16,28 @@ public class DriveConfig {
         public static boolean MOTORS_ACTIVE = true;
         public static boolean RESET_YAW_TOGGLE = false;
         public static boolean USE_PANELS_GAMEPAD = false;
+    }
+
+    // TODO: Map has 2 issues (it seems)
+    //   1- Does not support DcMotorSimple.Direction
+    //   2- Does not let you save the updated Map
+    @Configurable
+    public static class DriveDirPanels {
+        // Don't manually change values. Control it with panels.
+        public static DcMotorSimple.Direction FLD = DcMotorSimple.Direction.FORWARD;
+        public static DcMotorSimple.Direction FRD = DcMotorSimple.Direction.REVERSE;
+        public static DcMotorSimple.Direction BLD = DcMotorSimple.Direction.FORWARD;
+        public static DcMotorSimple.Direction BRD = DcMotorSimple.Direction.FORWARD;
+
+        public static DcMotorSimple.Direction getDir(@NonNull String name) {
+            return switch (name) {
+                case "fld" -> FLD;
+                case "frd" -> FRD;
+                case "bld" -> BLD;
+                case "brd" -> BRD;
+                default -> throw new IllegalStateException("Unexpected value: " + name);
+            };
+        }
     }
 
     @Configurable

@@ -5,6 +5,8 @@ import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanel
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.enableHardwareEncoders;
 import static org.firstinspires.ftc.teamcode.config.TeamCode.MessageConfig.printMessage;
 
+import androidx.annotation.NonNull;
+
 import com.bylazar.gamepad.GamepadManager;
 import com.bylazar.gamepad.PanelsGamepad;
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -36,27 +38,22 @@ public class MecanumDriveTeleOpManual extends OpMode {
     private GamepadManager panelsGamepad;
     private boolean useVelocity;
 
+    @NonNull
+    private DcMotorEx motor(String name) {
+        final DcMotorEx m = hardwareMap.get(DcMotorEx.class, name);
+        m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        m.setDirection(DriveConfig.DriveDirPanels.getDir(name));
+        m.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        return m;
+    }
+
     @Override
     public void init() {
-        frontLeftDrive = hardwareMap.get(DcMotorEx.class, "fld");
-        frontRightDrive = hardwareMap.get(DcMotorEx.class, "frd");
-        backLeftDrive = hardwareMap.get(DcMotorEx.class, "bld");
-        backRightDrive = hardwareMap.get(DcMotorEx.class, "brd");
+        frontLeftDrive = motor("fld");
+        frontRightDrive = motor("frd");
+        backLeftDrive = motor("bld");
+        backRightDrive = motor("brd");
 
-        frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-        frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
-        backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-        backRightDrive.setDirection(DcMotor.Direction.FORWARD);
-
-        frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         if (enableHardwareEncoders) {
             telemetry.addLine("Using hardware encoders");
             frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.ftcrobotcontroller.BuildConfig;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
@@ -46,11 +47,13 @@ public class TeamCode {
     }
 
     public record HardwareGetter(HardwareMap hardwareMap, @Nullable Telemetry telemetry) {
+        // TODO: add to config (Map may not work with Motor.GoBILDA)
+        // TODO: BARE may be wrong tho
         public final static Map<String, Motor.GoBILDA> motorRpmMap = Map.of(
-                "fld", Motor.GoBILDA.RPM_312,
-                "frd", Motor.GoBILDA.RPM_312,
-                "bld", Motor.GoBILDA.RPM_312,
-                "brd", Motor.GoBILDA.RPM_312
+                "fld", Motor.GoBILDA.BARE,
+                "frd", Motor.GoBILDA.BARE,
+                "bld", Motor.GoBILDA.BARE,
+                "brd", Motor.GoBILDA.BARE
         );
 
         public Motor.GoBILDA getMotorRpm(final String name) {
@@ -229,11 +232,19 @@ public class TeamCode {
                     ? name -> new MotorExVelo(hardwareMap, name, getMotorRpm(name))
                     : name -> new MotorEx(hardwareMap, name, getMotorRpm(name));
 
+            final Function<String, MotorEx> apply = name -> {
+                final MotorEx m = motor.apply(name);
+                m.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+                m.setInverted(DriveConfig.DriveDirPanels.getDir(name) == DcMotorSimple.Direction.REVERSE);
+                m.stopAndResetEncoder();
+                return m;
+            };
+
             return new Motors(
-                    motor.apply("fld"),
-                    motor.apply("frd"),
-                    motor.apply("bld"),
-                    motor.apply("brd")
+                    apply.apply("fld"),
+                    apply.apply("frd"),
+                    apply.apply("bld"),
+                    apply.apply("brd")
             );
         }
     }

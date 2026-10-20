@@ -45,21 +45,6 @@ public class MecanumDriveTeleOpManualVelocity extends OpMode {
         // TODO: compare motor.getMotorType().getAchieveableMaxTicksPerSecond(); and gobildaType.getAchievableMaxTicksPerSecond();
         telemetry.addLine(backRightDrive.motor.getMotorType().getAchieveableMaxTicksPerSecond() + " | " + hardwareGetter.getMotorRpm("brd").getAchievableMaxTicksPerSecond()); // FIXME: delete
 
-        frontLeftDrive.setInverted(true);
-        frontRightDrive.setInverted(false);
-        backLeftDrive.setInverted(true);
-        backRightDrive.setInverted(false);
-
-        frontLeftDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        frontRightDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        backLeftDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        backRightDrive.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-
-        frontLeftDrive.stopAndResetEncoder();
-        frontRightDrive.stopAndResetEncoder();
-        backLeftDrive.stopAndResetEncoder();
-        backRightDrive.stopAndResetEncoder();
-
         if (useVelocityControl) {
             telemetry.addLine("Using velocity control");
             frontLeftDrive.setRunMode(Motor.RunMode.VelocityControl);
