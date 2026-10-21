@@ -12,7 +12,7 @@ buildscript {
     }
     dependencies {
         // To use newer kotlin with older agp
-        classpath("com.android.tools:r8:9.1.+")
+        classpath("com.android.tools:r8:9.1.57")
     }
 }
 

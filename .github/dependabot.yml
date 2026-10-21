@@ -13,6 +13,10 @@ registries:
     type: maven-repository
     url: https://jitpack.io
 
+  r8-releases:
+    type: maven-repository
+    url: https://storage.googleapis.com/r8-releases/raw
+
 updates:
   - package-ecosystem: "gradle"
     directory: "/"
@@ -24,7 +28,11 @@ updates:
     registries:
       - dairy-maven
       - bylazar-maven
+      - r8-releases
       - jitpack
+    ignore:
+      - dependency-name: "com.android.tools:r8"
+        versions: [">=9.2.0"]
     assignees:
       - "plumguardian"
 
