@@ -6,8 +6,13 @@
 
 buildscript {
     repositories {
+        maven { url 'https://storage.googleapis.com/r8-releases/raw' }
         mavenCentral()
         google()
+    }
+    dependencies {
+        // To use newer kotlin with older agp
+        classpath("com.android.tools:r8:9.1.+")
     }
 }
 
