@@ -604,7 +604,6 @@ public class MultiSolverAprilTagProcessorImpl extends AprilTagProcessor
     @Override
     public void setPoseSolver(PoseSolver poseSolver)
     {
-        throw new RuntimeException("Not available in " + TAG);
     }
 
     @Override
