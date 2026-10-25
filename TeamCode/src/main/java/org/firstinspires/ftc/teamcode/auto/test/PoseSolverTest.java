@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.auto.test;
 
+//#if !match
 import com.bylazar.configurables.annotations.Configurable;
+//#endif
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -30,7 +32,9 @@ public class PoseSolverTest extends FieldCameraOpMode<MultiSolverAprilTagProcess
         );
     }
 
+//#if !match
     @Configurable
+//#endif
     static class PoseSolverTestSettings {
         public static Map<AprilTagProcessor.PoseSolver, String> colorMap = new HashMap<>(Map.of(
                 AprilTagProcessor.PoseSolver.APRILTAG_BUILTIN,      "#FF453A",
@@ -52,7 +56,9 @@ public class PoseSolverTest extends FieldCameraOpMode<MultiSolverAprilTagProcess
 
         for (val entry : detections.entrySet()) {
             final AprilTagProcessor.PoseSolver solver = entry.getKey();
+//#if !match
             field.setStyle("", PoseSolverTestSettings.colorMap.get(solver), 2.0);
+//#endif
             telemetry.addData("Solver", solver.name());
             for (final AprilTagDetection rawDetection : entry.getValue()) {
                 if (!(rawDetection instanceof AprilTagClusterDetection detection)) {
@@ -64,7 +70,9 @@ public class PoseSolverTest extends FieldCameraOpMode<MultiSolverAprilTagProcess
             }
         }
 
+//#if !match
         field.update();
+//#endif
     }
 
     @Override
@@ -80,7 +88,9 @@ public class PoseSolverTest extends FieldCameraOpMode<MultiSolverAprilTagProcess
         }
 
         final Position robotPose = detection.robotPose.getPosition();
+//#if !match
         field.moveCursor(DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.x), DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.y));
         field.circle(2.0);
+//#endif
     }
 }

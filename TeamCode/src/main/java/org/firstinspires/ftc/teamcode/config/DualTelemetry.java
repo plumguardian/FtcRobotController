@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.config;
 
-import com.bylazar.telemetry.TelemetryManager;
-
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -16,7 +14,7 @@ public class DualTelemetry implements Telemetry {
     @Getter
     private final Telemetry telemetry;
     @Getter
-    private final TelemetryManager.TelemetryWrapper panelsTelemetry;
+    private final Telemetry panelsTelemetry;
     @Getter
     private boolean returnPanels = false;
 

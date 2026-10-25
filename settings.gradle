@@ -7,8 +7,14 @@ pluginManagement {
     }
     resolutionStrategy {
         eachPlugin {
-            if (requested.id.id == 'io.freefair.android-lombok') {
-                useModule("com.github.plumguardian:android-gradle-plugins:${requested.version}")
+            switch (requested.id.id) {
+                case 'io.freefair.android-lombok':
+                    useModule("com.github.plumguardian:android-gradle-plugins:${requested.version}")
+                    break
+
+                case 'dev.tocraft.preprocessor':
+                    useModule("com.github.plumguardian:PreProcessor:${requested.version}")
+                    break
             }
         }
     }

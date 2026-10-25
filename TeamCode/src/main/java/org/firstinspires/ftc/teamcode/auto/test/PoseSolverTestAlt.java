@@ -4,7 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+//#if !match
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+//#endif
 import org.firstinspires.ftc.teamcode.config.camera.FieldCameraOpMode;
 import org.firstinspires.ftc.teamcode.vision.AprilTagClusterDetectionWithPose;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
@@ -38,7 +40,9 @@ public class PoseSolverTestAlt extends FieldCameraOpMode<MultiSolverAprilTagProc
     protected void processCluster(AprilTagClusterDetection rawDetection) {
         val detection = (AprilTagClusterDetectionWithPose) rawDetection;
 
+//#if !match
         field.setStyle("", PoseSolverTest.PoseSolverTestSettings.colorMap.get(detection.poseSolver), 2.0);
+//#endif
         telemetry.addData("Solver", detection.poseSolver.name());
         telemetry.addData("Frame time (ns)", detection.frameAcquisitionNanoTime);
         telemetry.addData("cluster %", detection.percentClusterFound);
@@ -48,8 +52,10 @@ public class PoseSolverTestAlt extends FieldCameraOpMode<MultiSolverAprilTagProc
             telemetry.addData("dist", detection.ftcPose.range);
         }
 
+//#if !match
         final Position robotPose = detection.robotPose.getPosition();
         field.moveCursor(DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.x), DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.y));
         field.circle(2.0);
+//#endif
     }
 }

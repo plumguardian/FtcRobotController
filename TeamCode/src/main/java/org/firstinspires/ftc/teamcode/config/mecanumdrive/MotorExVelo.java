@@ -2,13 +2,17 @@ package org.firstinspires.ftc.teamcode.config.mecanumdrive;
 
 import androidx.annotation.NonNull;
 
+//#if !match
 import com.bylazar.configurables.annotations.Configurable;
+//#endif
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 
 @SuppressWarnings("unused")
 public class MotorExVelo extends MotorEx {
+//#if !match
     @Configurable
+//#endif
     private static class MotorExVeloConfig {
         // Don't manually change values. Control it with panels.
         // -1 uses default bufferFraction

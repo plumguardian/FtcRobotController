@@ -1,17 +1,21 @@
 package org.firstinspires.ftc.teamcode.config.camera;
 
+//#if !match
 import com.bylazar.camerastream.PanelsCameraStream;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
+import org.firstinspires.ftc.teamcode.config.DualTelemetry;
+//#endif
+
+import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.config.DualTelemetry;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Function;
@@ -26,13 +30,15 @@ public abstract class CameraOpMode<T extends AprilTagProcessor> extends OpMode {
     private VisionPortal visionPortal;
     private float oldDecimation = 1.5F;
 
-    @NotNull
+    @NonNull
     private final Function<
-            TeamCode.@NotNull HardwareGetter,
-            TeamCode.HardwareGetter.@NotNull Vision<T>
+            TeamCode.HardwareGetter,
+            TeamCode.HardwareGetter.Vision<T>
     > visionSupplier;
 
+//#if !match
     @Configurable
+//#endif
     private static class CameraTestConfig {
         public static AprilTagProcessor.PoseSolver poseSolver = AprilTagProcessor.PoseSolver.OPENCV_SQPNP;
         public static float decimation = 1.5F;
@@ -40,7 +46,9 @@ public abstract class CameraOpMode<T extends AprilTagProcessor> extends OpMode {
 
     @Override
     public void init() {
+//#if !match
         telemetry = new DualTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
+//#endif
         val hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         val vision = visionSupplier.apply(hardwareGetter);
         visionPortal = vision.visionPortal();
@@ -55,7 +63,9 @@ public abstract class CameraOpMode<T extends AprilTagProcessor> extends OpMode {
 
     @Override
     public void start() {
+//#if !match
         PanelsCameraStream.INSTANCE.startStream(visionPortal, TeamCode.CAMERA_FPS);
+//#endif
         visionPortal = null;
     }
 
@@ -96,6 +106,8 @@ public abstract class CameraOpMode<T extends AprilTagProcessor> extends OpMode {
 
     @Override
     public void stop() {
+//#if !match
         PanelsCameraStream.INSTANCE.stopStream();
+//#endif
     }
 }

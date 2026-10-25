@@ -4,13 +4,17 @@ import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanel
 
 import androidx.annotation.NonNull;
 
+//#if !match
 import com.bylazar.configurables.annotations.Configurable;
+//#endif
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class DriveConfig {
     public static boolean OLD_RESET_YAW_TOGGLE = false;
 
+//#if !match
     @Configurable
+//#endif
     public static class DriveConfigPanels {
         // Don't manually change values. Control it with panels.
         public static boolean MOTORS_ACTIVE = true;
@@ -18,10 +22,10 @@ public class DriveConfig {
         public static boolean USE_PANELS_GAMEPAD = false;
     }
 
-    // TODO: Map has 2 issues (it seems)
-    //   1- Does not support DcMotorSimple.Direction
-    //   2- Does not let you save the updated Map
+    // TODO: Map does not support DcMotorSimple.Direction
+//#if !match
     @Configurable
+//#endif
     public static class DriveDirPanels {
         // Don't manually change values. Control it with panels.
         public static DcMotorSimple.Direction FLD = DcMotorSimple.Direction.FORWARD;
@@ -40,7 +44,9 @@ public class DriveConfig {
         }
     }
 
+//#if !match
     @Configurable
+//#endif
     public static class EncoderConfigPanels {
         // Don't manually change values. Control it with panels.
         public static boolean useVelocityControl = false; // FIXME: seems to cause issues?
