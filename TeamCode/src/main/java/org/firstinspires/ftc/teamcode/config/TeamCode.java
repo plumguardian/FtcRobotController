@@ -57,7 +57,8 @@ public class TeamCode {
                 "fld", Motor.GoBILDA.BARE,
                 "frd", Motor.GoBILDA.BARE,
                 "bld", Motor.GoBILDA.BARE,
-                "brd", Motor.GoBILDA.BARE
+                "brd", Motor.GoBILDA.BARE,
+                "launch", Motor.GoBILDA.BARE
         );
 
         public Motor.GoBILDA getMotorRpm(final String name) {

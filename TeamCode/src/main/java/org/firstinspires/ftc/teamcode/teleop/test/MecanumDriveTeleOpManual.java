@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.teleop.test;
 
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.MOTORS_ACTIVE;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.enableHardwareEncoders;
-import static org.firstinspires.ftc.teamcode.config.TeamCode.MessageConfig.printMessage;
 
 import androidx.annotation.NonNull;
 
 //#if !match
+import static org.firstinspires.ftc.teamcode.config.TeamCode.MessageConfig.printMessage;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.USE_PANELS_GAMEPAD;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import com.bylazar.gamepad.GamepadManager;
@@ -15,6 +15,7 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 //#endif
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -54,6 +55,9 @@ public class MecanumDriveTeleOpManual extends OpMode {
 
     @Override
     public void init() {
+        for (LynxModule hub : hardwareMap.getAll(LynxModule.class))
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+
         frontLeftDrive = motor("fld");
         frontRightDrive = motor("frd");
         backLeftDrive = motor("bld");
@@ -105,19 +109,20 @@ public class MecanumDriveTeleOpManual extends OpMode {
 //#endif
                 gamepad1;
 
+//#if !match
         if (DriveConfig.updateAndCheckYawToggle()) {
             imu.resetYaw();
             telemetry.addLine("IMU reset (panels)");
-//#if !match
             panelsTelemetry.addLine("IMU reset (panels)");
-//#endif
         }
+
+        printMessage(telemetry);
+//#endif
+
         if (gamepad.a) {
             telemetry.addLine("IMU reset");
             imu.resetYaw();
         }
-
-        printMessage(telemetry);
 
         if (gamepad.left_bumper)
             drive(-gamepad.left_stick_y, gamepad.left_stick_x, gamepad.right_stick_x);

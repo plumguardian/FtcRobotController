@@ -24,6 +24,19 @@ plugins {
     id 'com.gradle.develocity' version '4.6.1'
 }
 
+try (Socket socket = new Socket()) {
+    socket.connect(
+            new InetSocketAddress(
+                    InetAddress.getByName("8.8.8.8"),
+                    53
+            ),
+            1000
+    )
+} catch (IOException ignored) {
+    gradle.startParameter.offline = true
+    println("Enabled offline mode")
+}
+
 develocity {
     buildScan {
         termsOfUseUrl = 'https://gradle.com/help/legal-terms-of-use'

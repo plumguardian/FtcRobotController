@@ -4,16 +4,19 @@ import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanel
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.enableHardwareEncoders;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useMotorExVelo;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useVelocityControl;
-import static org.firstinspires.ftc.teamcode.config.TeamCode.MessageConfig.printMessage;
 
 //#if !match
+import static org.firstinspires.ftc.teamcode.config.TeamCode.MessageConfig.printMessage;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.USE_PANELS_GAMEPAD;
 import com.bylazar.gamepad.GamepadManager;
 import com.bylazar.gamepad.PanelsGamepad;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import org.firstinspires.ftc.teamcode.config.mecanumdrive.MecanumDrivePanels;
 //#endif
 
+import com.seattlesolvers.solverslib.drivebase.MecanumDrive;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -26,11 +29,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.config.DriveConfig;
 import org.firstinspires.ftc.teamcode.config.TeamCode;
-import org.firstinspires.ftc.teamcode.config.mecanumdrive.MecanumDrivePanels;
 
 @TeleOp(name = "Mecanum Drive", group = "Testing")
 public class MecanumDriveTeleOp extends OpMode {
-    private MecanumDrivePanels mecanumDrive;
+    private MecanumDrive mecanumDrive;
     private IMU imu;
 //#if !match
     private TelemetryManager.TelemetryWrapper panelsTelemetry;
@@ -39,6 +41,9 @@ public class MecanumDriveTeleOp extends OpMode {
 
     @Override
     public void init() {
+        for (LynxModule hub : hardwareMap.getAll(LynxModule.class))
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+
         final TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
         final TeamCode.HardwareGetter.Motors motors = hardwareGetter.getMotors();
         final MotorEx frontLeftDrive = motors.frontLeft();
@@ -97,16 +102,12 @@ public class MecanumDriveTeleOp extends OpMode {
         panelsGamepad = PanelsGamepad.INSTANCE.getFirstManager();
 //#endif
 
-        mecanumDrive = new MecanumDrivePanels(
-                false,
-                frontLeftDrive,
-                frontRightDrive,
-                backLeftDrive,
-                backRightDrive
+        mecanumDrive =
 //#if !match
-                , panelsTelemetry
+                new MecanumDrivePanels(false, frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, PanelsTelemetry.INSTANCE.getFtcTelemetry());
+//#else
+//$$                 new MecanumDrive(false, frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive);
 //#endif
-        );
 
         imu = hardwareGetter.getIMU();
     }
@@ -127,19 +128,20 @@ public class MecanumDriveTeleOp extends OpMode {
 //#endif
                 gamepad1;
 
+//#if !match
         if (DriveConfig.updateAndCheckYawToggle()) {
             imu.resetYaw();
             telemetry.addLine("IMU reset (panels)");
-//#if !match
             panelsTelemetry.addLine("IMU reset (panels)");
-//#endif
         }
+
+        printMessage(telemetry);
+//#endif
+
         if (gamepad.a) {
             telemetry.addLine("IMU reset");
             imu.resetYaw();
         }
-
-        printMessage(telemetry);
 
         final YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
         final double yaw = angles.getYaw(AngleUnit.DEGREES);
