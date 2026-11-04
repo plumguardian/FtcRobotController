@@ -23,10 +23,10 @@ public class PrintDebug extends LinearOpMode {
     @Configurable
 //#endif
     protected static class PrintDebugTest {
-        public static final String saved = "<font color='#e37c07'>";
-        public static final String detected = "<font color='#09e087'>";
-        public static final String calculated = "<font color='#451fed'>";
-        public static final String end = "</font>";
+        public static String saved = "<font color='#e37c07'>";
+        public static String detected = "<font color='#09e087'>";
+        public static String calculated = "<font color='#451fed'>";
+        public static String end = "</font>";
     }
 
     @Override

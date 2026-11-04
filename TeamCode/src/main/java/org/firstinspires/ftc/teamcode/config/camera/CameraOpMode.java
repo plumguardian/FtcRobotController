@@ -44,8 +44,7 @@ public abstract class CameraOpMode<T extends AprilTagProcessor> extends OpMode {
         public static float decimation = 1.5F;
     }
 
-    @Override
-    public void init() {
+    protected TeamCode.HardwareGetter initHardware() {
 //#if !match
         telemetry = new DualTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 //#endif
@@ -59,6 +58,12 @@ public abstract class CameraOpMode<T extends AprilTagProcessor> extends OpMode {
             telemetry.update();
         }
         aprilTagProcessor = vision.aprilTagProcessor();
+        return hardwareGetter;
+    }
+
+    @Override
+    public void init() {
+        initHardware();
     }
 
     @Override
@@ -98,11 +103,12 @@ public abstract class CameraOpMode<T extends AprilTagProcessor> extends OpMode {
                 continue;
             }
 
-            processCluster(detection);
+            if (processCluster(detection))
+                return;
         }
     }
 
-    protected abstract void processCluster(AprilTagClusterDetection detection);
+    protected abstract boolean processCluster(@NonNull AprilTagClusterDetection detection);
 
     @Override
     public void stop() {

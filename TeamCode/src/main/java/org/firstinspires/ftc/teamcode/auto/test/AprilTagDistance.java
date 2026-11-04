@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto.test;
 
+import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -27,7 +29,7 @@ public class AprilTagDistance extends CameraOpMode<AprilTagProcessor> {
     }
 
     @Override
-    protected void processCluster(AprilTagClusterDetection detection) {
+    protected boolean processCluster(@NonNull AprilTagClusterDetection detection) {
         telemetry.addData("cluster %", detection.percentClusterFound);
 
         telemetry.addData("X", detection.ftcPose.x); // positive X axis extends out to the right of the camera viewpoint
@@ -38,5 +40,6 @@ public class AprilTagDistance extends CameraOpMode<AprilTagProcessor> {
 
         if (detection.metadata != null)
             telemetry.addData("unit", detection.metadata.distanceUnit.name());
+        return false;
     }
 }

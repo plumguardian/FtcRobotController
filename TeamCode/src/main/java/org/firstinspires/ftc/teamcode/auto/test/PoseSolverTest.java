@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto.test;
 
+import androidx.annotation.NonNull;
+
 //#if !match
 import com.bylazar.configurables.annotations.Configurable;
 //#endif
@@ -76,7 +78,7 @@ public class PoseSolverTest extends FieldCameraOpMode<MultiSolverAprilTagProcess
     }
 
     @Override
-    protected void processCluster(AprilTagClusterDetection rawDetection) {
+    protected boolean processCluster(@NonNull AprilTagClusterDetection rawDetection) {
         val detection = (AprilTagClusterDetectionWithPose) rawDetection;
 
         telemetry.addData("Frame time (ns)", detection.frameAcquisitionNanoTime);
@@ -92,5 +94,6 @@ public class PoseSolverTest extends FieldCameraOpMode<MultiSolverAprilTagProcess
         field.moveCursor(DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.x), DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.y));
         field.circle(2.0);
 //#endif
+        return false;
     }
 }

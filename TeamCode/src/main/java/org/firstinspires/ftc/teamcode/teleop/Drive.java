@@ -122,6 +122,8 @@ public class Drive extends OpMode {
         launch.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         launch.stopAndResetEncoder();
         launch.setRunMode(Motor.RunMode.RawPower);
+//        launch.setRunMode(Motor.RunMode.VelocityControl);
+//        launch.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         gate = new ServoExGroup(
                 new ServoEx(hardwareMap, "gate1", 300.0)
@@ -171,9 +173,9 @@ public class Drive extends OpMode {
 
 //#if !match
         if (DriveConfig.updateAndCheckYawToggle()) {
-            imu.resetYaw();
             telemetry.addLine("IMU reset (panels)");
             panelsTelemetry.addLine("IMU reset (panels)");
+            imu.resetYaw();
         }
 
         printMessage(telemetry);
@@ -226,6 +228,11 @@ public class Drive extends OpMode {
         else
             speed = 0.0;
         launch.set(speed);
+//#if !match
+        panelsTelemetry.addData("Launch pos", launch.encoder.getPosition());
+        panelsTelemetry.addData("Launch velo", launch.encoder.getCorrectedVelocity());
+        panelsTelemetry.addData("Launch velo (internal)", launch.getVelocity());
+//#endif
 
         double angle;
         if (gamepad.getButton(GamepadKeys.Button.CIRCLE))

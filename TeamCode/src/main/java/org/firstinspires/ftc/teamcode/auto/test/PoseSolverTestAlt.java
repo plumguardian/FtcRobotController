@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto.test;
 
+import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -37,7 +39,7 @@ public class PoseSolverTestAlt extends FieldCameraOpMode<MultiSolverAprilTagProc
     }
 
     @Override
-    protected void processCluster(AprilTagClusterDetection rawDetection) {
+    protected boolean processCluster(@NonNull AprilTagClusterDetection rawDetection) {
         val detection = (AprilTagClusterDetectionWithPose) rawDetection;
 
 //#if !match
@@ -57,5 +59,6 @@ public class PoseSolverTestAlt extends FieldCameraOpMode<MultiSolverAprilTagProc
         field.moveCursor(DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.x), DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.y));
         field.circle(2.0);
 //#endif
+        return false;
     }
 }

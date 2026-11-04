@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto.test;
 
+import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -32,7 +34,7 @@ public class GraphFieldUsingAprilTags extends FieldCameraOpMode<AprilTagProcesso
     }
 
     @Override
-    protected void processCluster(AprilTagClusterDetection detection) {
+    protected boolean processCluster(@NonNull AprilTagClusterDetection detection) {
         final Telemetry.Item item = telemetry.addData("Frame time (ns)", detection.frameAcquisitionNanoTime);
         item.addData("cluster %", detection.percentClusterFound);
         item.addData("robot pose on field", detection.robotPose); // Should be null for BIOBUZZ hives
@@ -60,5 +62,6 @@ public class GraphFieldUsingAprilTags extends FieldCameraOpMode<AprilTagProcesso
         field.moveCursor(DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.x), DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.y));
         field.circle(2.0);
 //#endif
+        return false;
     }
 }
