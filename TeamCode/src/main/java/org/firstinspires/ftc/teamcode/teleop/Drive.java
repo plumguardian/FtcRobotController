@@ -18,13 +18,14 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.seattlesolvers.solverslib.drivebase.MecanumDrive;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
-import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 import com.seattlesolvers.solverslib.hardware.servos.ServoEx;
 import com.seattlesolvers.solverslib.hardware.servos.ServoExGroup;
 
@@ -39,7 +40,8 @@ import lombok.val;
 public class Drive extends OpMode {
     private MecanumDrive mecanumDrive;
     private IMU imu;
-    private MotorEx launch;
+    private DcMotorEx launch;
+    private double launchTicks;
     private ServoExGroup gate;
     private GamepadEx gamepad;
 //#if !match
@@ -117,13 +119,17 @@ public class Drive extends OpMode {
 
         imu = hardwareGetter.getIMU();
 
-        launch = new MotorEx(hardwareMap, "launch", hardwareGetter.getMotorRpm("launch"));
-        launch.setInverted(true);
-        launch.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        launch.stopAndResetEncoder();
-        launch.setRunMode(Motor.RunMode.RawPower);
-//        launch.setRunMode(Motor.RunMode.VelocityControl);
-//        launch.motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launch = hardwareMap.get(DcMotorEx.class, "launch");
+        launch.setDirection(DcMotorSimple.Direction.REVERSE);
+        launch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        launch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        launch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launchTicks = launch.getMotorType().getAchieveableMaxTicksPerSecond();
+//#if !match
+        telemetry.addData("RPM", launch.getMotorType().getMaxRPM());
+        telemetry.addData("ticks/second", launchTicks);
+        telemetry.addData("SolversLib ticks/second", hardwareGetter.getMotorRpm("launch").getAchievableMaxTicksPerSecond());
+//#endif
 
         gate = new ServoExGroup(
                 new ServoEx(hardwareMap, "gate1", 300.0)
@@ -146,7 +152,9 @@ public class Drive extends OpMode {
     }
 
     @Override
-    public void start() { DriveConfig.updateYawToggle(); }
+    public void start() {
+        DriveConfig.updateYawToggle();
+    }
 
     @Override
     public void loop() {
@@ -227,11 +235,11 @@ public class Drive extends OpMode {
             speed = DriveConfig.LaunchPanels.SPEED_SUCK;
         else
             speed = 0.0;
-        launch.set(speed);
+        launch.setVelocity(speed * launchTicks);
 //#if !match
-        panelsTelemetry.addData("Launch pos", launch.encoder.getPosition());
-        panelsTelemetry.addData("Launch velo", launch.encoder.getCorrectedVelocity());
-        panelsTelemetry.addData("Launch velo (internal)", launch.getVelocity());
+        panelsTelemetry.addData("Launch pos", launch.getCurrentPosition());
+        panelsTelemetry.addData("Launch target pos", launch.getTargetPosition());
+        panelsTelemetry.addData("Launch velo", launch.getVelocity());
 //#endif
 
         double angle;
@@ -242,10 +250,5 @@ public class Drive extends OpMode {
         else
             angle = DriveConfig.LaunchPanels.ANGLE_NEUTRAL;
         gate.set(angle);
-    }
-
-    @Override
-    public void stop() {
-        launch.stopMotor();
     }
 }

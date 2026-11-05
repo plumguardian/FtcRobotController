@@ -52,12 +52,11 @@ public class TeamCode {
 
     public record HardwareGetter(HardwareMap hardwareMap, @Nullable Telemetry telemetry) {
         // TODO: add to config (Map may not work with Motor.GoBILDA)
-        // TODO: BARE may be wrong tho
         public final static Map<String, Motor.GoBILDA> motorRpmMap = Map.of(
-                "fld", Motor.GoBILDA.BARE,
-                "frd", Motor.GoBILDA.BARE,
-                "bld", Motor.GoBILDA.BARE,
-                "brd", Motor.GoBILDA.BARE,
+                "fld", Motor.GoBILDA.RPM_312,
+                "frd", Motor.GoBILDA.RPM_312,
+                "bld", Motor.GoBILDA.RPM_312,
+                "brd", Motor.GoBILDA.RPM_312,
                 "launch", Motor.GoBILDA.BARE
         );
 
