@@ -251,4 +251,9 @@ public class Drive extends OpMode {
             angle = DriveConfig.LaunchPanels.ANGLE_NEUTRAL;
         gate.set(angle);
     }
+
+    @Override
+    public void stop() {
+        launch.setPower(0D);
+    }
 }
