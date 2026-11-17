@@ -58,7 +58,7 @@ def isMatch = (findProperty('match') ?: 'false').toBoolean()
 dependencies {
     implementation project(':FtcRobotController')
     if (!isMatch) {
-        implementation "com.bylazar:fullpanels:1.0.19"
+        implementation "com.bylazar:fullpanels:1.0.20"
     }
     implementation "com.pedropathing:revhub:3.0.2"
     implementation "com.pedropathing:tuning:1.0.3"
