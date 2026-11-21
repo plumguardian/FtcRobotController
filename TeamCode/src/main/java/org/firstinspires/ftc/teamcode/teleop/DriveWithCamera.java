@@ -25,6 +25,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PwmControl;
+import com.qualcomm.robotcore.util.Range;
 import com.seattlesolvers.solverslib.drivebase.MecanumDrive;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
@@ -51,6 +52,10 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
 //#if !match
     private TelemetryManager.TelemetryWrapper panelsTelemetry;
 //#endif
+    private double tagBearing;
+    private double targetYaw;
+    private static final double Kp = 0.015;
+    private static final double turnDeadband = 1.5;
 
     public DriveWithCamera() {
         super(hardwareGetter -> hardwareGetter
@@ -117,6 +122,9 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
         backLeftDrive.setFeedforwardCoefficients();
         backRightDrive.setFeedforwardCoefficients();
         */
+
+        tagBearing = 0.0;
+        targetYaw = 0.0;
 
 //#if !match
         panelsTelemetry = PanelsTelemetry.INSTANCE.getFtcTelemetry();
@@ -208,21 +216,51 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
             imu.resetYaw();
         }
 
-        final YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
-        final double yaw = angles.getYaw(AngleUnit.DEGREES);
+        // MecanumDrivePanels already calls panelsTelemetry.update();
+        if (MOTORS_ACTIVE) {
+            final YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+            final double yaw = angles.getYaw(AngleUnit.DEGREES);
 
 //#if !match
-        panelsTelemetry.addData("yaw", yaw);
-        panelsTelemetry.addData("pitch", angles.getPitch(AngleUnit.DEGREES));
-        panelsTelemetry.addData("roll", angles.getRoll(AngleUnit.DEGREES));
+            panelsTelemetry.addData("yaw", yaw);
+            panelsTelemetry.addData("pitch", angles.getPitch(AngleUnit.DEGREES));
+            panelsTelemetry.addData("roll", angles.getRoll(AngleUnit.DEGREES));
 //#endif
 
-        if (MOTORS_ACTIVE) {
-            // MecanumDrivePanels already calls panelsTelemetry.update();
-            if (gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER))
-                mecanumDrive.driveRobotCentric(gamepad.getLeftX(), gamepad.getLeftY(), gamepad.getRightX(), gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER));
-            else
-                mecanumDrive.driveFieldCentric(gamepad.getLeftX(), gamepad.getLeftY(), gamepad.getRightX(), yaw, gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER));
+            if (gamepad.wasJustPressed(GamepadKeys.Button.OPTIONS))
+                targetYaw = yaw + tagBearing;
+
+            if (gamepad.getButton(GamepadKeys.Button.OPTIONS)) {
+                double error = targetYaw - yaw;
+                while (error > 180) error -= 360;
+                while (error < -180) error += 360;
+
+                double turnValue = Math.abs(error) < turnDeadband
+                        ? 0
+                        : Range.clip(error * Kp, -1, 1);
+
+                mecanumDrive.driveRobotCentric(
+                        0,
+                        0,
+                        turnValue,
+                        gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+                );
+            } else if (gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER)) {
+                mecanumDrive.driveRobotCentric(
+                        gamepad.getLeftX(),
+                        gamepad.getLeftY(),
+                        gamepad.getRightX(),
+                        gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+                );
+            } else {
+                mecanumDrive.driveFieldCentric(
+                        gamepad.getLeftX(),
+                        gamepad.getLeftY(),
+                        gamepad.getRightX(),
+                        yaw,
+                        gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+                );
+            }
         } else {
             mecanumDrive.stop();
 //#if !match
@@ -270,6 +308,8 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
     protected boolean processCluster(@NonNull AprilTagClusterDetection detection) {
         if (detection.metadata == null || detection.metadata.name.charAt(0) != 'B' || Math.abs(detection.ftcPose.roll) >= 90)
             return false;
+
+        tagBearing = detection.ftcPose.bearing;
 
         telemetry.addData("name", detection.metadata.name);
         telemetry.addData("dist (in)", DistanceUnit.INCH.fromUnit(detection.metadata.distanceUnit, detection.ftcPose.range));
