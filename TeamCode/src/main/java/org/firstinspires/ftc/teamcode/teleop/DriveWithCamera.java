@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 //#if !match
 import static org.firstinspires.ftc.teamcode.config.TeamCode.MessageConfig.printMessage;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.USE_PANELS_GAMEPAD;
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.gamepad.PanelsGamepad;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -54,8 +55,15 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
 //#endif
     private double tagBearing;
     private double targetYaw;
-    private static final double Kp = 0.015;
-    private static final double turnDeadband = 1.5;
+
+//#if !match
+    @Configurable
+//#endif
+    private static class CameraAimPanels {
+        public static double Kp = 0.04;
+        public static double turnDeadband = 1.0;
+        public static char target = 'B';
+    }
 
     public DriveWithCamera() {
         super(hardwareGetter -> hardwareGetter
@@ -179,8 +187,6 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
 
     @Override
     public void loop() {
-        super.loop();
-
 //#if !match
         if (USE_PANELS_GAMEPAD) {
             gamepad.gamepad = PanelsGamepad.INSTANCE.getFirstManager().getAsFTCGamepad();
@@ -190,7 +196,18 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
 
         gamepad.readButtons();
 
+        if (gamepad.wasJustPressed(GamepadKeys.Button.OPTIONS)) {
+            if (CameraAimPanels.target == 'B')
+                CameraAimPanels.target = 'R';
+            else
+                CameraAimPanels.target = 'B';
+        }
+
+        super.loop();
+
         telemetry.addLine("Press SHARE to reset Yaw");
+        telemetry.addLine("Press OPTION to swap targets");
+        telemetry.addLine("Press TRACKPAD to aim");
         telemetry.addLine("Hold left bumper to drive robot centric");
         telemetry.addLine("Hold right bumper to square the speed");
         telemetry.addLine("Left joystick moves the robot");
@@ -201,6 +218,7 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
         telemetry.addLine("Press SQUARE to suck");
         telemetry.addLine("Press TRIANGLE to push");
         telemetry.addLine("Press CIRCLE to load");
+        telemetry.addData("Target", CameraAimPanels.target);
 
 //#if !match
         if (DriveConfig.updateAndCheckYawToggle()) {
@@ -227,17 +245,19 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
             panelsTelemetry.addData("roll", angles.getRoll(AngleUnit.DEGREES));
 //#endif
 
-            if (gamepad.wasJustPressed(GamepadKeys.Button.OPTIONS))
+            // TODO: instead of saving bearing, save targetYaw (this will need to pass yaw to processCluster)
+
+            if (gamepad.wasJustPressed(GamepadKeys.Button.TOUCHPAD))
                 targetYaw = yaw + tagBearing;
 
-            if (gamepad.getButton(GamepadKeys.Button.OPTIONS)) {
-                double error = targetYaw - yaw;
+            if (gamepad.getButton(GamepadKeys.Button.TOUCHPAD)) {
+                double error = yaw - targetYaw;
                 while (error > 180) error -= 360;
                 while (error < -180) error += 360;
 
-                double turnValue = Math.abs(error) < turnDeadband
+                double turnValue = Math.abs(error) < CameraAimPanels.turnDeadband
                         ? 0
-                        : Range.clip(error * Kp, -1, 1);
+                        : Range.clip(error * CameraAimPanels.Kp, -1, 1);
 
                 mecanumDrive.driveRobotCentric(
                         0,
@@ -306,7 +326,7 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
 
     @Override
     protected boolean processCluster(@NonNull AprilTagClusterDetection detection) {
-        if (detection.metadata == null || detection.metadata.name.charAt(0) != 'B' || Math.abs(detection.ftcPose.roll) >= 90)
+        if (detection.metadata == null || detection.metadata.name.charAt(0) != CameraAimPanels.target || Math.abs(detection.ftcPose.roll) >= 90)
             return false;
 
         tagBearing = detection.ftcPose.bearing;
