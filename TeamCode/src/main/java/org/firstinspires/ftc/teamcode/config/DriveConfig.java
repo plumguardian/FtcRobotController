@@ -27,10 +27,10 @@ public class DriveConfig {
 //#endif
     public static class DriveDirPanels {
         // Don't manually change values. Control it with panels.
-        public static DcMotorSimple.Direction FLD = DcMotorSimple.Direction.FORWARD;
-        public static DcMotorSimple.Direction FRD = DcMotorSimple.Direction.REVERSE;
-        public static DcMotorSimple.Direction BLD = DcMotorSimple.Direction.FORWARD;
-        public static DcMotorSimple.Direction BRD = DcMotorSimple.Direction.REVERSE;
+        public static DcMotorSimple.Direction FLD = DcMotorSimple.Direction.REVERSE;
+        public static DcMotorSimple.Direction FRD = DcMotorSimple.Direction.FORWARD;
+        public static DcMotorSimple.Direction BLD = DcMotorSimple.Direction.REVERSE;
+        public static DcMotorSimple.Direction BRD = DcMotorSimple.Direction.FORWARD;
 
         public static DcMotorSimple.Direction getDir(@NonNull String name) {
             return switch (name) {
@@ -52,6 +52,15 @@ public class DriveConfig {
         public static double ANGLE_FIRE = 60.0;
         public static double SPEED_FIRE = 0.7;
         public static double SPEED_SUCK = -0.4;
+    }
+
+//#if !match
+    @Configurable
+//#endif
+    public static class IMUPanels {
+        public static double X = 103.6;
+        public static double Y = 0.0;
+        public static double Z = 5.22;
     }
 
 //#if !match

@@ -86,8 +86,7 @@ public class TeamCode {
             final IMU imu = hardwareMap.get(IMU.class, "imu");
 
             final RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(
-                    RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                    RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+                    RevHubOrientationOnRobot.xyzOrientation(DriveConfig.IMUPanels.X, DriveConfig.IMUPanels.Y, DriveConfig.IMUPanels.Z)
             );
 
             if (!imu.initialize(new IMU.Parameters(orientationOnRobot)) && telemetry != null) {
