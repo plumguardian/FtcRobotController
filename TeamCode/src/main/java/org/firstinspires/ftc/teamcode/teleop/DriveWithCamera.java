@@ -14,6 +14,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.gamepad.PanelsGamepad;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import org.firstinspires.ftc.teamcode.config.DualTelemetry;
 import org.firstinspires.ftc.teamcode.config.mecanumdrive.MecanumDrivePanels;
 //#endif
 
@@ -35,7 +36,6 @@ import com.seattlesolvers.solverslib.hardware.servos.ServoEx;
 import com.seattlesolvers.solverslib.hardware.servos.ServoExGroup;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.config.DriveConfig;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -53,7 +53,7 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
 //#if !match
     private TelemetryManager.TelemetryWrapper panelsTelemetry;
 //#endif
-    private double tagBearing;
+    private double currentYaw;
     private double targetYaw;
 
 //#if !match
@@ -75,6 +75,11 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
 
     @Override
     public void init() {
+//#if !match
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getFtcTelemetry();
+        telemetry = new DualTelemetry(telemetry, panelsTelemetry);
+//#endif
+
         for (LynxModule hub : hardwareMap.getAll(LynxModule.class))
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
 
@@ -131,13 +136,6 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
         backRightDrive.setFeedforwardCoefficients();
         */
 
-        tagBearing = 0.0;
-        targetYaw = 0.0;
-
-//#if !match
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getFtcTelemetry();
-//#endif
-
         mecanumDrive =
 //#if !match
                 new MecanumDrivePanels(false, frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, PanelsTelemetry.INSTANCE.getFtcTelemetry());
@@ -146,6 +144,8 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
 //#endif
 
         imu = hardwareGetter.getIMU();
+        currentYaw = imu.getRobotYawPitchRollAngles().getYaw();
+        targetYaw = 0.0;
 
         launch = hardwareMap.get(DcMotorEx.class, "launch");
         launch.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -196,12 +196,25 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
 
         gamepad.readButtons();
 
-        if (gamepad.wasJustPressed(GamepadKeys.Button.OPTIONS)) {
-            if (CameraAimPanels.target == 'B')
-                CameraAimPanels.target = 'R';
-            else
-                CameraAimPanels.target = 'B';
+        if (gamepad.wasJustPressed(GamepadKeys.Button.OPTIONS))
+            CameraAimPanels.target = CameraAimPanels.target == 'B' ? 'R' : 'B';
+
+//#if !match
+        if (DriveConfig.updateAndCheckYawToggle()) {
+            telemetry.addLine("IMU reset (panels)");
+            imu.resetYaw();
         }
+
+        printMessage(telemetry);
+//#endif
+
+        if (gamepad.getButton(GamepadKeys.Button.SHARE)) {
+            telemetry.addLine("IMU reset");
+            imu.resetYaw();
+        }
+
+        val angles = imu.getRobotYawPitchRollAngles();
+        currentYaw = angles.getYaw(AngleUnit.DEGREES);
 
         super.loop();
 
@@ -221,71 +234,41 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
         telemetry.addData("Target", CameraAimPanels.target);
 
 //#if !match
-        if (DriveConfig.updateAndCheckYawToggle()) {
-            telemetry.addLine("IMU reset (panels)");
-            imu.resetYaw();
-        }
-
-        printMessage(telemetry);
+        panelsTelemetry.addData("yaw", currentYaw);
+        panelsTelemetry.addData("pitch", angles.getPitch(AngleUnit.DEGREES));
+        panelsTelemetry.addData("roll", angles.getRoll(AngleUnit.DEGREES));
 //#endif
 
-        if (gamepad.getButton(GamepadKeys.Button.SHARE)) {
-            telemetry.addLine("IMU reset");
-            imu.resetYaw();
-        }
-
-        // MecanumDrivePanels already calls panelsTelemetry.update();
-        if (MOTORS_ACTIVE) {
-            final YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
-            final double yaw = angles.getYaw(AngleUnit.DEGREES);
-
-//#if !match
-            panelsTelemetry.addData("yaw", yaw);
-            panelsTelemetry.addData("pitch", angles.getPitch(AngleUnit.DEGREES));
-            panelsTelemetry.addData("roll", angles.getRoll(AngleUnit.DEGREES));
-//#endif
-
-            // TODO: instead of saving bearing, save targetYaw (this will need to pass yaw to processCluster)
-
-            if (gamepad.wasJustPressed(GamepadKeys.Button.TOUCHPAD))
-                targetYaw = yaw + tagBearing;
-
-            if (gamepad.getButton(GamepadKeys.Button.TOUCHPAD)) {
-                double error = yaw - targetYaw;
-                while (error > 180) error -= 360;
-                while (error < -180) error += 360;
-
-                double turnValue = Math.abs(error) < CameraAimPanels.turnDeadband
-                        ? 0
-                        : Range.clip(error * CameraAimPanels.Kp, -1, 1);
-
-                mecanumDrive.driveRobotCentric(
-                        0,
-                        0,
-                        turnValue,
-                        gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER)
-                );
-            } else if (gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER)) {
-                mecanumDrive.driveRobotCentric(
-                        gamepad.getLeftX(),
-                        gamepad.getLeftY(),
-                        gamepad.getRightX(),
-                        gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER)
-                );
-            } else {
-                mecanumDrive.driveFieldCentric(
-                        gamepad.getLeftX(),
-                        gamepad.getLeftY(),
-                        gamepad.getRightX(),
-                        yaw,
-                        gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER)
-                );
-            }
-        } else {
+        if (!MOTORS_ACTIVE) {
             mecanumDrive.stop();
-//#if !match
-            panelsTelemetry.update();
-//#endif
+        } else if (gamepad.getButton(GamepadKeys.Button.TOUCHPAD)) {
+            val error = Math.IEEEremainder(currentYaw - targetYaw, 360.0);
+
+            val turnValue = Math.abs(error) < CameraAimPanels.turnDeadband
+                    ? 0
+                    : error * CameraAimPanels.Kp;
+
+            mecanumDrive.driveRobotCentric(
+                    0,
+                    0,
+                    turnValue,
+                    gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+            );
+        } else if (gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER)) {
+            mecanumDrive.driveRobotCentric(
+                    gamepad.getLeftX(),
+                    gamepad.getLeftY(),
+                    gamepad.getRightX(),
+                    gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+            );
+        } else {
+            mecanumDrive.driveFieldCentric(
+                    gamepad.getLeftX(),
+                    gamepad.getLeftY(),
+                    gamepad.getRightX(),
+                    currentYaw,
+                    gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+            );
         }
 
         // TODO: does this break panels?
@@ -329,11 +312,13 @@ public class DriveWithCamera extends CameraOpMode<AprilTagProcessor> {
         if (detection.metadata == null || detection.metadata.name.charAt(0) != CameraAimPanels.target || Math.abs(detection.ftcPose.roll) >= 90)
             return false;
 
-        tagBearing = detection.ftcPose.bearing;
+        targetYaw = currentYaw + detection.ftcPose.bearing;
 
+        telemetry.addLine();
         telemetry.addData("name", detection.metadata.name);
         telemetry.addData("dist (in)", DistanceUnit.INCH.fromUnit(detection.metadata.distanceUnit, detection.ftcPose.range));
         telemetry.addData("bearing", detection.ftcPose.bearing);
+        telemetry.addLine();
 
         return true;
     }
