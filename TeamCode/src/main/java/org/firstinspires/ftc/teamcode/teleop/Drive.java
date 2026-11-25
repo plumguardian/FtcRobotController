@@ -194,16 +194,16 @@ public class Drive extends OpMode {
             imu.resetYaw();
         }
 
-        final YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
-        final double yaw = angles.getYaw(AngleUnit.DEGREES);
+        if (MOTORS_ACTIVE) {
+            final YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+            final double yaw = angles.getYaw(AngleUnit.DEGREES);
 
 //#if !match
-        panelsTelemetry.addData("yaw", yaw);
-        panelsTelemetry.addData("pitch", angles.getPitch(AngleUnit.DEGREES));
-        panelsTelemetry.addData("roll", angles.getRoll(AngleUnit.DEGREES));
+            panelsTelemetry.addData("yaw", yaw);
+            panelsTelemetry.addData("pitch", angles.getPitch(AngleUnit.DEGREES));
+            panelsTelemetry.addData("roll", angles.getRoll(AngleUnit.DEGREES));
 //#endif
 
-        if (MOTORS_ACTIVE) {
             // MecanumDrivePanels already calls panelsTelemetry.update();
             if (gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER))
                 mecanumDrive.driveRobotCentric(gamepad.getLeftX(), gamepad.getLeftY(), gamepad.getRightX(), gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER));
