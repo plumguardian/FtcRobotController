@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.utility;
 
-//#if !match
+//#if flavor != competition
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import org.firstinspires.ftc.teamcode.config.DualTelemetry;
@@ -15,7 +15,7 @@ import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 public class MotorTest extends LinearOpMode {
     public static final String ID = "testMotor";
 
-//#if !match
+//#if flavor != competition
     @Configurable
 //#endif
     private static class MotorTestPanels {
@@ -24,7 +24,7 @@ public class MotorTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-//#if !match
+//#if flavor != competition
         telemetry = new DualTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 //#endif
         final MotorEx motor = new MotorEx(hardwareMap, ID);

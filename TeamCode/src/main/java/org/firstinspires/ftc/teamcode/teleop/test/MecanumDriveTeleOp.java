@@ -5,7 +5,7 @@ import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPan
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useMotorExVelo;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useVelocityControl;
 
-//#if !match
+//#if flavor != competition
 import static org.firstinspires.ftc.teamcode.config.TeamCode.MessageConfig.printMessage;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.USE_PANELS_GAMEPAD;
 import com.bylazar.gamepad.GamepadManager;
@@ -34,7 +34,7 @@ import org.firstinspires.ftc.teamcode.config.TeamCode;
 public class MecanumDriveTeleOp extends OpMode {
     private MecanumDrive mecanumDrive;
     private IMU imu;
-//#if !match
+//#if flavor != competition
     private TelemetryManager.TelemetryWrapper panelsTelemetry;
     private GamepadManager panelsGamepad;
 //#endif
@@ -97,13 +97,13 @@ public class MecanumDriveTeleOp extends OpMode {
         backRightDrive.setFeedforwardCoefficients();
         */
 
-//#if !match
+//#if flavor != competition
         panelsTelemetry = PanelsTelemetry.INSTANCE.getFtcTelemetry();
         panelsGamepad = PanelsGamepad.INSTANCE.getFirstManager();
 //#endif
 
         mecanumDrive =
-//#if !match
+//#if flavor != competition
                 new MecanumDrivePanels(false, frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 //#else
 //$$                 new MecanumDrive(false, frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive);
@@ -123,12 +123,12 @@ public class MecanumDriveTeleOp extends OpMode {
         telemetry.addLine("Moving the right joystick left and right turns the robot");
 
         final Gamepad gamepad =
-//#if !match
+//#if flavor != competition
                 USE_PANELS_GAMEPAD ? panelsGamepad.getAsFTCGamepad() :
 //#endif
                 gamepad1;
 
-//#if !match
+//#if flavor != competition
         if (DriveConfig.updateAndCheckYawToggle()) {
             imu.resetYaw();
             telemetry.addLine("IMU reset (panels)");
@@ -146,7 +146,7 @@ public class MecanumDriveTeleOp extends OpMode {
         final YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
         final double yaw = angles.getYaw(AngleUnit.DEGREES);
 
-//#if !match
+//#if flavor != competition
         panelsTelemetry.addData("yaw", yaw);
         panelsTelemetry.addData("pitch", angles.getPitch(AngleUnit.DEGREES));
         panelsTelemetry.addData("roll", angles.getRoll(AngleUnit.DEGREES));
@@ -160,7 +160,7 @@ public class MecanumDriveTeleOp extends OpMode {
                 mecanumDrive.driveFieldCentric(gamepad.left_stick_x, -gamepad.left_stick_y, gamepad.right_stick_x, yaw, gamepad.right_bumper);
         } else {
             mecanumDrive.stop();
-//#if !match
+//#if flavor != competition
             panelsTelemetry.update();
 //#endif
         }

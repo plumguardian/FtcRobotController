@@ -5,7 +5,7 @@ import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPan
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useMotorExVelo;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useVelocityControl;
 
-//#if !match
+//#if flavor != competition
 import static org.firstinspires.ftc.teamcode.config.TeamCode.MessageConfig.printMessage;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.USE_PANELS_GAMEPAD;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
@@ -33,7 +33,7 @@ public class MecanumDriveTeleOpManualVelocity extends OpMode {
     private MotorEx backLeftDrive;
     private MotorEx backRightDrive;
     private IMU imu;
-//#if !match
+//#if flavor != competition
     private TelemetryManager.TelemetryWrapper panelsTelemetry;
     private GamepadManager panelsGamepad;
 //#endif
@@ -95,7 +95,7 @@ public class MecanumDriveTeleOpManualVelocity extends OpMode {
 
         imu = hardwareGetter.getIMU();
 
-//#if !match
+//#if flavor != competition
         panelsTelemetry = PanelsTelemetry.INSTANCE.getFtcTelemetry();
         panelsGamepad = PanelsGamepad.INSTANCE.getFirstManager();
 //#endif
@@ -114,12 +114,12 @@ public class MecanumDriveTeleOpManualVelocity extends OpMode {
         telemetry.addLine("Moving the right joystick left and right turns the robot");
 
         final Gamepad gamepad =
-//#if !match
+//#if flavor != competition
                 USE_PANELS_GAMEPAD ? panelsGamepad.getAsFTCGamepad() :
 //#endif
                 gamepad1;
 
-//#if !match
+//#if flavor != competition
         if (DriveConfig.updateAndCheckYawToggle()) {
             imu.resetYaw();
             telemetry.addLine("IMU reset (panels)");
@@ -180,7 +180,7 @@ public class MecanumDriveTeleOpManualVelocity extends OpMode {
         final double frd = maxSpeed * (frontRightPower / maxPower);
         final double bld = maxSpeed * (backLeftPower / maxPower);
         final double brd = maxSpeed * (backRightPower / maxPower);
-//#if !match
+//#if flavor != competition
         panelsTelemetry.addData("frontLeft", fld);
         panelsTelemetry.addData("frontRight", frd);
         panelsTelemetry.addData("backLeft", bld);

@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.utility;
 
 import static org.firstinspires.ftc.teamcode.utility.PrintDebug.PrintDebugTest.*;
 
-//#if !match
+//#if flavor != competition
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import org.firstinspires.ftc.teamcode.config.DualTelemetry;
@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.config.TeamCode;
 
 @Utility(name = "Print Debug", description = "Logs various info about the robot")
 public class PrintDebug extends LinearOpMode {
-//#if !match
+//#if flavor != competition
     @Configurable
 //#endif
     protected static class PrintDebugTest {
@@ -31,7 +31,7 @@ public class PrintDebug extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-//#if !match
+//#if flavor != competition
         telemetry = new DualTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 //#endif
         final TeamCode.HardwareGetter hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);

@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.config;
 
-//#if !match
+//#if flavor != competition
 import com.bylazar.configurables.annotations.Configurable;
 //#endif
 
@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class DriveConfig {
     public static boolean OLD_RESET_YAW_TOGGLE = false;
 
-//#if !match
+//#if flavor != competition
     @Configurable
 //#endif
     public static class DriveConfigPanels {
@@ -22,7 +22,7 @@ public class DriveConfig {
     }
 
     // TODO: Map does not support DcMotorSimple.Direction
-//#if !match
+//#if flavor != competition
     @Configurable
 //#endif
     public static class DriveDirPanels {
@@ -43,7 +43,7 @@ public class DriveConfig {
         }
     }
 
-//#if !match
+//#if flavor != competition
     @Configurable
 //#endif
     public static class LaunchPanels {
@@ -54,7 +54,7 @@ public class DriveConfig {
         public static double SPEED_SUCK = -0.4;
     }
 
-//#if !match
+//#if flavor != competition
     @Configurable
 //#endif
     public static class IMUPanels {
@@ -63,7 +63,7 @@ public class DriveConfig {
         public static double Z = 5.22;
     }
 
-//#if !match
+//#if flavor != competition
     @Configurable
 //#endif
     public static class EncoderConfigPanels {

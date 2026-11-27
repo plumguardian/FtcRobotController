@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-//#if !match
+//#if flavor != competition
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 //#endif
 import org.firstinspires.ftc.teamcode.config.camera.FieldCameraOpMode;
@@ -57,7 +57,7 @@ public class GraphFieldUsingAprilTags extends FieldCameraOpMode<AprilTagProcesso
             item.addData("dist", detection.ftcPose.range);
         }
 
-//#if !match
+//#if flavor != competition
         final Position robotPose = detection.robotPose.getPosition();
         field.moveCursor(DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.x), DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.y));
         field.circle(2.0);

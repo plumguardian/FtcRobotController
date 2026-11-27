@@ -5,7 +5,7 @@ import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPan
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useMotorExVelo;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.EncoderConfigPanels.useVelocityControl;
 
-//#if !match
+//#if flavor != competition
 import static org.firstinspires.ftc.teamcode.config.TeamCode.MessageConfig.printMessage;
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.USE_PANELS_GAMEPAD;
 import com.bylazar.gamepad.PanelsGamepad;
@@ -44,7 +44,7 @@ public class Drive extends OpMode {
     private double launchTicks;
     private ServoExGroup gate;
     private GamepadEx gamepad;
-//#if !match
+//#if flavor != competition
     private TelemetryManager.TelemetryWrapper panelsTelemetry;
 //#endif
 
@@ -106,12 +106,12 @@ public class Drive extends OpMode {
         backRightDrive.setFeedforwardCoefficients();
         */
 
-//#if !match
+//#if flavor != competition
         panelsTelemetry = PanelsTelemetry.INSTANCE.getFtcTelemetry();
 //#endif
 
         mecanumDrive =
-//#if !match
+//#if flavor != competition
                 new MecanumDrivePanels(false, frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 //#else
 //$$                 new MecanumDrive(false, frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive);
@@ -125,7 +125,7 @@ public class Drive extends OpMode {
         launch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         launchTicks = launch.getMotorType().getAchieveableMaxTicksPerSecond();
-//#if !match
+//#if flavor != competition
         telemetry.addData("RPM", launch.getMotorType().getMaxRPM());
         telemetry.addData("ticks/second", launchTicks);
         telemetry.addData("SolversLib ticks/second", hardwareGetter.getMotorRpm("launch").getAchievableMaxTicksPerSecond());
@@ -140,7 +140,7 @@ public class Drive extends OpMode {
                         .setPwm(new PwmControl.PwmRange(500, 2500))
         );
 
-//#if !match
+//#if flavor != competition
         if (USE_PANELS_GAMEPAD) {
             gamepad = new GamepadEx(PanelsGamepad.INSTANCE.getFirstManager().getAsFTCGamepad());
             telemetry.addLine("Using online gamepad");
@@ -158,7 +158,7 @@ public class Drive extends OpMode {
 
     @Override
     public void loop() {
-//#if !match
+//#if flavor != competition
         if (USE_PANELS_GAMEPAD) {
             gamepad.gamepad = PanelsGamepad.INSTANCE.getFirstManager().getAsFTCGamepad();
             telemetry.addLine("Using online gamepad");
@@ -179,7 +179,7 @@ public class Drive extends OpMode {
         telemetry.addLine("Press TRIANGLE to push");
         telemetry.addLine("Press CIRCLE to load");
 
-//#if !match
+//#if flavor != competition
         if (DriveConfig.updateAndCheckYawToggle()) {
             telemetry.addLine("IMU reset (panels)");
             panelsTelemetry.addLine("IMU reset (panels)");
@@ -197,7 +197,7 @@ public class Drive extends OpMode {
         final YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
         final double yaw = angles.getYaw(AngleUnit.DEGREES);
 
-//#if !match
+//#if flavor != competition
         panelsTelemetry.addData("yaw", yaw);
         panelsTelemetry.addData("pitch", angles.getPitch(AngleUnit.DEGREES));
         panelsTelemetry.addData("roll", angles.getRoll(AngleUnit.DEGREES));
@@ -211,7 +211,7 @@ public class Drive extends OpMode {
                 mecanumDrive.driveFieldCentric(gamepad.getLeftX(), gamepad.getLeftY(), gamepad.getRightX(), yaw, gamepad.getButton(GamepadKeys.Button.RIGHT_BUMPER));
         } else {
             mecanumDrive.stop();
-//#if !match
+//#if flavor != competition
             panelsTelemetry.update();
 //#endif
         }
@@ -236,7 +236,7 @@ public class Drive extends OpMode {
         else
             speed = 0.0;
         launch.setVelocity(speed * launchTicks);
-//#if !match
+//#if flavor != competition
         panelsTelemetry.addData("Launch pos", launch.getCurrentPosition());
         panelsTelemetry.addData("Launch target pos", launch.getTargetPosition());
         panelsTelemetry.addData("Launch velo", launch.getVelocity());

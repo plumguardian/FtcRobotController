@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.config.camera;
 
-//#if !match
+//#if flavor != competition
 import com.bylazar.field.FieldManager;
 import com.bylazar.field.FieldPresets;
 import com.bylazar.field.PanelsField;
@@ -14,7 +14,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.function.Function;
 
 public abstract class FieldCameraOpMode<T extends AprilTagProcessor> extends CameraOpMode<T> {
-//#if !match
+//#if flavor != competition
     protected FieldManager field;
 //#endif
 
@@ -30,7 +30,7 @@ public abstract class FieldCameraOpMode<T extends AprilTagProcessor> extends Cam
     @Override
     public void init() {
         super.init();
-//#if !match
+//#if flavor != competition
         field = PanelsField.INSTANCE.getField();
         field.setOffsets(FieldPresets.INSTANCE.getDEFAULT_FTC());
         field.update();
@@ -40,7 +40,7 @@ public abstract class FieldCameraOpMode<T extends AprilTagProcessor> extends Cam
     @Override
     public void loop() {
         super.loop();
-//#if !match
+//#if flavor != competition
         field.update();
 //#endif
     }

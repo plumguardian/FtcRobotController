@@ -5,7 +5,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-//#if !match
+//#if flavor != competition
 import com.bylazar.configurables.annotations.Configurable;
 //#endif
 import com.qualcomm.ftcrobotcontroller.BuildConfig;
@@ -38,7 +38,7 @@ public class TeamCode {
     /** The fps for the camera (Logitech C270 HD Webcam) */
     public static final int CAMERA_FPS = 30;
 
-//#if !match
+//#if flavor != competition
     @Configurable
 //#endif
     public static class MessageConfig {

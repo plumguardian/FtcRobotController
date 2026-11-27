@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.auto.test;
 
 import androidx.annotation.NonNull;
 
-//#if !match
+//#if flavor != competition
 import com.bylazar.configurables.annotations.Configurable;
 //#endif
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -34,7 +34,7 @@ public class PoseSolverTest extends FieldCameraOpMode<MultiSolverAprilTagProcess
         );
     }
 
-//#if !match
+//#if flavor != competition
     @Configurable
 //#endif
     static class PoseSolverTestSettings {
@@ -58,7 +58,7 @@ public class PoseSolverTest extends FieldCameraOpMode<MultiSolverAprilTagProcess
 
         for (val entry : detections.entrySet()) {
             final AprilTagProcessor.PoseSolver solver = entry.getKey();
-//#if !match
+//#if flavor != competition
             field.setStyle("", PoseSolverTestSettings.colorMap.get(solver), 2.0);
 //#endif
             telemetry.addData("Solver", solver.name());
@@ -72,7 +72,7 @@ public class PoseSolverTest extends FieldCameraOpMode<MultiSolverAprilTagProcess
             }
         }
 
-//#if !match
+//#if flavor != competition
         field.update();
 //#endif
     }
@@ -90,7 +90,7 @@ public class PoseSolverTest extends FieldCameraOpMode<MultiSolverAprilTagProcess
         }
 
         final Position robotPose = detection.robotPose.getPosition();
-//#if !match
+//#if flavor != competition
         field.moveCursor(DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.x), DistanceUnit.INCH.fromUnit(robotPose.unit, robotPose.y));
         field.circle(2.0);
 //#endif

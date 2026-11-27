@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.utility;
 
-//#if !match
+//#if flavor != competition
 import static org.firstinspires.ftc.teamcode.config.DriveConfig.DriveConfigPanels.USE_PANELS_GAMEPAD;
 import com.bylazar.gamepad.PanelsGamepad;
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -30,7 +30,7 @@ public class MaintainServo extends OpMode {
 
     @Override
     public void init() {
-//#if !match
+//#if flavor != competition
         telemetry = new DualTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 //#endif
 
@@ -46,7 +46,7 @@ public class MaintainServo extends OpMode {
         gate1.setPwmEnable();
         gate2.setPwmEnable();
 
-//#if !match
+//#if flavor != competition
         if (USE_PANELS_GAMEPAD) {
             gamepad = new GamepadEx(PanelsGamepad.INSTANCE.getFirstManager().getAsFTCGamepad());
             telemetry.addLine("Using online gamepad");
@@ -67,7 +67,7 @@ public class MaintainServo extends OpMode {
 
     @Override
     public void loop() {
-//#if !match
+//#if flavor != competition
         if (USE_PANELS_GAMEPAD) {
             gamepad.gamepad = PanelsGamepad.INSTANCE.getFirstManager().getAsFTCGamepad();
             telemetry.addLine("Using online gamepad");

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.auto;
 import static com.pedropathing.api.Paths.line;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
-//#if !match
+//#if flavor != competition
 import com.bylazar.camerastream.PanelsCameraStream;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.field.FieldManager;
@@ -43,7 +43,7 @@ import lombok.val;
 
 @Autonomous(name = "Go To AprilTag", group = "Auto")
 public class GoToApril extends OpMode {
-//#if !match
+//#if flavor != competition
     @SuppressWarnings("unused")
     private enum Field {
         DEFAULT_FTC(FieldPresets.INSTANCE.getDEFAULT_FTC()),
@@ -63,7 +63,7 @@ public class GoToApril extends OpMode {
     private static class GoToAprilTestConfig {
         public static int stopCount = 1000;
         public static DistanceUnit unit = DistanceUnit.INCH;
-//#if !match
+//#if flavor != competition
         public static Field fieldType = Field.DEFAULT_FTC;
 //#endif
         public static double standOff = 1.0;
@@ -73,7 +73,7 @@ public class GoToApril extends OpMode {
     private Follower follower;
     private PoseFactory poseFactory;
     private final List<AprilTagClusterDetection> detections = new ArrayList<>(GoToAprilTestConfig.stopCount);
-//#if !match
+//#if flavor != competition
     private FieldManager field;
     private static final Style redStyle = new Style(
             "",
@@ -90,7 +90,7 @@ public class GoToApril extends OpMode {
 
     @Override
     public void init() {
-//#if !match
+//#if flavor != competition
         telemetry = new DualTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 //#endif
         Scheduler.reset();
@@ -109,7 +109,7 @@ public class GoToApril extends OpMode {
         follower = Constants.create(hardwareMap);
         poseFactory = PoseFactory.radians();
 
-//#if !match
+//#if flavor != competition
         field = PanelsField.INSTANCE.getField();
         field.setOffsets(GoToAprilTestConfig.fieldType.field);
         field.update();
@@ -126,14 +126,14 @@ public class GoToApril extends OpMode {
         if (newDetections.isEmpty()) {
             telemetry.addLine("No tag found");
             // Thread.sleep(50); FIXME: may not work inside a normal OpMode
-//#if !match
+//#if flavor != competition
             field.update();
 //#endif
             telemetry.update();
             return;
         }
 
-//#if !match
+//#if flavor != competition
         field.setStyle(redStyle);
 //#endif
         for (AprilTagDetection rawDetection : newDetections) {
@@ -145,7 +145,7 @@ public class GoToApril extends OpMode {
             if (detection.metadata == null)
                 continue;
 
-//#if !match
+//#if flavor != competition
             final VectorF tagpos = detection.metadata.fieldPosition;
             field.moveCursor(
                     GoToAprilTestConfig.unit.fromUnit(detection.metadata.distanceUnit, tagpos.get(0)),
@@ -155,7 +155,7 @@ public class GoToApril extends OpMode {
 //#endif
         }
 
-//#if !match
+//#if flavor != competition
         field.update();
 //#endif
         telemetry.update();
@@ -242,7 +242,7 @@ public class GoToApril extends OpMode {
     public void stop() {
         telemetry.addData("Mode", follower.mode().name());
         follower.stop();
-//#if !match
+//#if flavor != competition
         PanelsCameraStream.INSTANCE.stopStream();
 //#endif
     }

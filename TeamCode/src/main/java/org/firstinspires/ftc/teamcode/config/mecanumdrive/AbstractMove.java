@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.config.mecanumdrive;
 
-//#if !match
+//#if flavor != competition
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 //#endif
@@ -17,7 +17,7 @@ import lombok.val;
 public abstract class AbstractMove extends OpMode {
     protected MecanumDrive mecanumDrive;
 
-//#if !match
+//#if flavor != competition
     @Configurable
 //#endif
     public static class MoveToEndPanels {
@@ -42,7 +42,7 @@ public abstract class AbstractMove extends OpMode {
         backRightDrive.setRunMode(Motor.RunMode.RawPower);
 
         mecanumDrive =
-//#if !match
+//#if flavor != competition
                 new MecanumDrivePanels(false, frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 //#else
 //$$                 new MecanumDrive(false, frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive);

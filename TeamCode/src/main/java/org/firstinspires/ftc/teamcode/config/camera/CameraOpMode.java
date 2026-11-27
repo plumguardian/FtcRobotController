@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.config.camera;
 
-//#if !match
+//#if flavor != competition
 import com.bylazar.camerastream.PanelsCameraStream;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -36,7 +36,7 @@ public abstract class CameraOpMode<T extends AprilTagProcessor> extends OpMode {
             TeamCode.HardwareGetter.Vision<T>
     > visionSupplier;
 
-//#if !match
+//#if flavor != competition
     @Configurable
 //#endif
     private static class CameraTestConfig {
@@ -45,7 +45,7 @@ public abstract class CameraOpMode<T extends AprilTagProcessor> extends OpMode {
     }
 
     protected TeamCode.HardwareGetter initHardware() {
-//#if !match
+//#if flavor != competition
         telemetry = new DualTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 //#endif
         val hardwareGetter = new TeamCode.HardwareGetter(hardwareMap, telemetry);
@@ -68,7 +68,7 @@ public abstract class CameraOpMode<T extends AprilTagProcessor> extends OpMode {
 
     @Override
     public void start() {
-//#if !match
+//#if flavor != competition
         PanelsCameraStream.INSTANCE.startStream(visionPortal, TeamCode.CAMERA_FPS);
 //#endif
         visionPortal = null;
@@ -112,7 +112,7 @@ public abstract class CameraOpMode<T extends AprilTagProcessor> extends OpMode {
 
     @Override
     public void stop() {
-//#if !match
+//#if flavor != competition
         PanelsCameraStream.INSTANCE.stopStream();
 //#endif
     }

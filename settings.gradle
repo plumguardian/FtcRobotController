@@ -8,13 +8,15 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             switch (requested.id.id) {
-                case 'io.freefair.android-lombok':
-                    useModule("com.github.plumguardian:android-gradle-plugins:${requested.version}")
-                    break
-
-                case 'dev.tocraft.preprocessor':
-                    useModule("com.github.plumguardian:PreProcessor:${requested.version}")
-                    break
+                case 'io.freefair.android-lombok' -> useModule(
+                        "com.github.plumguardian:android-gradle-plugins:${requested.version}"
+                )
+                case 'dev.tocraft.preprocessor' -> useModule(
+                        "com.github.plumguardian.preprocessor:preprocessor:${requested.version}"
+                )
+                case 'dev.tocraft.preprocessor.android' -> useModule(
+                        "com.github.plumguardian.preprocessor:preprocessor.android:${requested.version}"
+                )
             }
         }
     }
